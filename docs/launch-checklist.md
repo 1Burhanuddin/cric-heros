@@ -1,6 +1,6 @@
 # CricHeros — Launch Checklist
 
-Last audited: 2026-09-08. Backend is fully migrated to Supabase (Auth, Postgres, RLS, Realtime, Storage) and verified working end-to-end. What's below is what's left before this app can go live on the Play Store.
+Last audited: 2026-09-09. Backend is fully migrated to Supabase (Auth, Postgres, RLS, Realtime, Storage) and verified working end-to-end. What's below is what's left before this app can go live on the Play Store.
 
 Each item has a priority, a status, and an owner slot — claim one by putting your name in the Owner column and opening a PR against it.
 
@@ -8,11 +8,19 @@ Each item has a priority, a status, and an owner slot — claim one by putting y
 
 | # | Item | Status | Owner | Notes |
 |---|------|--------|-------|-------|
-| 1 | Real OTP delivery for arbitrary phone numbers | **Blocked** | | Twilio is still in trial mode — can only SMS pre-verified numbers. No real user can sign up until this is fixed. See "SMS Provider Choice" section below. |
-| 2 | Android release signing | **Not configured** | | `khelo/android/app/build.gradle` has a `signingConfigs.release` block that reads `APKSIGN_KEYSTORE`/`APKSIGN_KEY_ALIAS`/etc. env vars, but falls back to the debug keystore if they're unset. No `key.properties` exists. Need: generate a real upload keystore, wire the env vars into local/CI build config. |
+| 1 | Android OAuth client for Google Sign-In | **In progress** | | Sign-in now uses Google + email/password (phone OTP shelved, see below). The Supabase Google provider is enabled and the app code is wired up, but Google Sign-In on Android won't actually complete until an Android OAuth client (package `com.cricheros.app`, debug SHA-1 already handed off) is created in Google Cloud Console — needs a release-keystore SHA-1 added too once #3 is done. |
+| 2 | Android release signing | **Not configured** | | `khelo/android/app/build.gradle` has a `signingConfigs.release` block that reads `APKSIGN_KEYSTORE`/`APKSIGN_KEY_ALIAS`/etc. env vars, but falls back to the debug keystore if they're unset. No `key.properties` exists. Need: generate a real upload keystore, wire the env vars into local/CI build config. Also blocks #1 above (Google needs the release SHA-1 registered too). |
 | 3 | Final app icon | **Placeholder** | | `khelo/android/app/src/main/res/mipmap-*` — there's literally a file named `ic_app_logo_PLACEHOLDER_NOTICE.md` saying "temporary placeholder, replace before release." |
 | 4 | Privacy policy hosting + in-app links | **Wrong URLs** | | A real privacy policy doc exists at `docs/privacy-policy.md`, but it isn't hosted anywhere public. `khelo/lib/ui/flow/profile/profile_screen.dart:35-39` still links to `khelo.canopas.com/privacy-policy`, `khelo.canopas.com/terms-and-condition`, and the old Khelo Play Store/App Store listings. Play Store **requires** a working privacy policy URL in the listing to submit at all. Needs: host the doc (GitHub Pages is the easy option), update those 4 links. |
 | 5 | `google-services.json` committed to git | **Tracked** | | Client-safe to embed in the built app, but shouldn't sit in the repo — the store-prep commit intended to gitignore it but the rule is commented out in `.gitignore`. Low urgency but should stop tracking it going forward. |
+
+## ✅ Unblocked (2026-09-09) — sign-up no longer needs an SMS provider
+
+Phone OTP was the #1 blocker (Twilio trial mode can't SMS arbitrary numbers, and India's DLT registration adds friction on top of that). Decision: **ship with Google Sign-In + email/password for now**, phone OTP shelved. Real SMS is no longer launch-blocking — the "SMS Provider Choice" section below is kept for whenever phone sign-in comes back, not urgent anymore.
+
+- `AuthService.signInWithGoogle` / `signUpWithEmail` / `signInWithEmail` added, all sharing the same post-auth bookkeeping `verifyOTP` already used.
+- New sign-in/sign-up screens replace phone-login as the intro screen's destination. Phone-login code is untouched and still reachable at `/phone-login` — quick to bring back later.
+- The one loose end is Android OAuth client creation (item #1 above) — someone with Google Cloud Console access needs to finish that before Google Sign-In works end-to-end on a real device.
 
 ## 🟡 Should fix before launch, not a hard blocker
 
