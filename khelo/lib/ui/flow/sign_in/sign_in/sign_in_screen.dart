@@ -1,14 +1,17 @@
 import 'package:cricheros_data/storage/app_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cricheros/components/app_page.dart';
 import 'package:cricheros/components/error_snackbar.dart';
 import 'package:cricheros/domain/extensions/context_extensions.dart';
 import 'package:cricheros/ui/app_route.dart';
 import 'package:cricheros/ui/flow/sign_in/sign_in/sign_in_view_model.dart';
+import 'package:cricheros_style/animations/on_tap_scale.dart';
 import 'package:cricheros_style/button/bottom_sticky_overlay.dart';
 import 'package:cricheros_style/button/primary_button.dart';
 import 'package:cricheros_style/extensions/context_extensions.dart';
+import 'package:cricheros_style/indicator/progress_indicator.dart';
 import 'package:cricheros_style/text/app_text_field.dart';
 import 'package:cricheros_style/text/app_text_style.dart';
 
@@ -33,6 +36,7 @@ class SignInScreen extends ConsumerWidget {
               const EdgeInsets.symmetric(horizontal: 16) +
               BottomStickyOverlay.padding,
           children: [
+            const SizedBox(height: 24),
             Text(
               context.l10n.sign_in_title,
               style: AppTextStyle.header1
@@ -45,14 +49,7 @@ class SignInScreen extends ConsumerWidget {
                   .copyWith(color: context.colorScheme.textDisabled),
             ),
             const SizedBox(height: 32),
-            PrimaryButton(
-              context.l10n.sign_in_continue_with_google,
-              progress: state.googleSigningIn,
-              enabled: !busy,
-              background: Colors.white,
-              foreground: Colors.black87,
-              onPressed: notifier.signInWithGoogle,
-            ),
+            _googleButton(context, state, busy, notifier),
             _orDivider(context),
             AppTextField(
               controller: state.emailController,
@@ -80,9 +77,17 @@ class SignInScreen extends ConsumerWidget {
                   focusColor: Colors.transparent, unFocusColor: Colors.transparent),
               contentPadding: const EdgeInsets.all(16),
               suffixIcon: IconButton(
-                icon: Icon(state.obscurePassword
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined),
+                icon: SvgPicture.asset(
+                  state.obscurePassword
+                      ? 'assets/images/icons/ic_eye_slash.svg'
+                      : 'assets/images/icons/ic_eye.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: ColorFilter.mode(
+                    context.colorScheme.textDisabled,
+                    BlendMode.srcIn,
+                  ),
+                ),
                 onPressed: notifier.toggleObscurePassword,
               ),
               onChanged: (_) => notifier.onFieldChange(),
@@ -101,6 +106,47 @@ class SignInScreen extends ConsumerWidget {
           ],
         );
       }),
+    );
+  }
+
+  Widget _googleButton(
+    BuildContext context,
+    SignInState state,
+    bool busy,
+    SignInViewNotifier notifier,
+  ) {
+    final tappable = !state.googleSigningIn && !busy;
+    return OnTapScale(
+      onTap: notifier.signInWithGoogle,
+      enabled: tappable,
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 48),
+        decoration: BoxDecoration(
+          color: tappable ? Colors.white : Colors.white.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: context.colorScheme.outline),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (state.googleSigningIn) ...[
+              const AppProgressIndicator(
+                size: AppProgressIndicatorSize.small,
+                color: Colors.black87,
+              ),
+              const SizedBox(width: 12),
+            ] else ...[
+              SvgPicture.asset('assets/images/icons/ic_google.svg', width: 20, height: 20),
+              const SizedBox(width: 12),
+            ],
+            Text(
+              context.l10n.sign_in_continue_with_google,
+              style: AppTextStyle.button.copyWith(color: Colors.black87),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

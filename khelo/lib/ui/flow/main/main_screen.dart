@@ -216,7 +216,7 @@ class _MainScreenState extends ConsumerState<MainScreen>
                 ),
                 child: Center(
                   child: SvgPicture.string(
-                    _cricketBallSvg,
+                    _startMatchSvg,
                     width: 24,
                     height: 24,
                     colorFilter: ColorFilter.mode(
@@ -233,14 +233,13 @@ class _MainScreenState extends ConsumerState<MainScreen>
     );
   }
 
-  // Just the ball, not a bat+ball combo — drawn in the reference icon
-  // set's own convention (24x24, stroke-only, round caps/joins, ~1.7
-  // stroke weight) rather than pulled from Flutter's built-in Material
-  // icon set, which doesn't have a plain cricket ball at all.
-  static const _cricketBallSvg = '''
+  // A plain "+" reads as "create a new match" without leaning on the
+  // cricket-ball/bat imagery the rest of the icon set deliberately avoids -
+  // same reference icon set convention (24x24, stroke-only, round caps/
+  // joins, ~1.7 stroke weight) as everything ported into assets/images/icons.
+  static const _startMatchSvg = '''
 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="12" cy="12" r="8.2" stroke="#000000" stroke-width="1.7"/>
-  <path d="M4.8 8.6c4.8 3.2 9.6 3.2 14.4 0M4.8 15.4c4.8-3.2 9.6-3.2 14.4 0" stroke="#000000" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M12 5.2v13.6M5.2 12h13.6" stroke="#000000" stroke-width="1.7" stroke-linecap="round"/>
 </svg>
 ''';
 

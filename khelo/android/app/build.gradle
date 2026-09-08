@@ -24,6 +24,17 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+// Release signing: key.properties (local dev convenience, gitignored) takes
+// priority, falling back to the APKSIGN_* env vars (CI), falling back to the
+// debug keystore so `flutter run --release` still works with neither set up.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withReader('UTF-8') { reader ->
+        keystoreProperties.load(reader)
+    }
+}
+
 android {
     namespace "com.cricheros.app"
     compileSdkVersion 36
@@ -61,7 +72,14 @@ android {
 
 
     signingConfigs {
-        if (System.getenv("APKSIGN_KEYSTORE") != null) {
+        if (keystoreProperties.getProperty('storeFile') != null) {
+            release {
+                storeFile rootProject.file(keystoreProperties.getProperty('storeFile'))
+                storePassword keystoreProperties.getProperty('storePassword')
+                keyAlias keystoreProperties.getProperty('keyAlias')
+                keyPassword keystoreProperties.getProperty('keyPassword')
+            }
+        } else if (System.getenv("APKSIGN_KEYSTORE") != null) {
             release {
                 storeFile file(System.getenv("APKSIGN_KEYSTORE"))
                 storePassword System.getenv("APKSIGN_KEYSTORE_PASS")

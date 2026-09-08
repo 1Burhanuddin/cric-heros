@@ -1,6 +1,7 @@
 import 'package:cricheros_data/storage/app_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cricheros/components/app_page.dart';
 import 'package:cricheros/components/error_snackbar.dart';
@@ -32,6 +33,7 @@ class SignUpScreen extends ConsumerWidget {
               const EdgeInsets.symmetric(horizontal: 16) +
               BottomStickyOverlay.padding,
           children: [
+            const SizedBox(height: 24),
             Text(
               context.l10n.sign_up_title,
               style: AppTextStyle.header1
@@ -70,9 +72,17 @@ class SignUpScreen extends ConsumerWidget {
                   focusColor: Colors.transparent, unFocusColor: Colors.transparent),
               contentPadding: const EdgeInsets.all(16),
               suffixIcon: IconButton(
-                icon: Icon(state.obscurePassword
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined),
+                icon: SvgPicture.asset(
+                  state.obscurePassword
+                      ? 'assets/images/icons/ic_eye_slash.svg'
+                      : 'assets/images/icons/ic_eye.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: ColorFilter.mode(
+                    context.colorScheme.textDisabled,
+                    BlendMode.srcIn,
+                  ),
+                ),
                 onPressed: notifier.toggleObscurePassword,
               ),
               onChanged: (_) => notifier.onFieldChange(),
@@ -90,9 +100,17 @@ class SignUpScreen extends ConsumerWidget {
                   focusColor: Colors.transparent, unFocusColor: Colors.transparent),
               contentPadding: const EdgeInsets.all(16),
               suffixIcon: IconButton(
-                icon: Icon(state.obscureConfirmPassword
-                    ? Icons.visibility_off_outlined
-                    : Icons.visibility_outlined),
+                icon: SvgPicture.asset(
+                  state.obscureConfirmPassword
+                      ? 'assets/images/icons/ic_eye_slash.svg'
+                      : 'assets/images/icons/ic_eye.svg',
+                  width: 22,
+                  height: 22,
+                  colorFilter: ColorFilter.mode(
+                    context.colorScheme.textDisabled,
+                    BlendMode.srcIn,
+                  ),
+                ),
                 onPressed: notifier.toggleObscureConfirmPassword,
               ),
               onChanged: (_) => notifier.onFieldChange(),
