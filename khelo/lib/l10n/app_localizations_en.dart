@@ -319,6 +319,62 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please enter valid phone number';
 
   @override
+  String get sign_in_title => 'Welcome to CricHeros';
+
+  @override
+  String get sign_in_description =>
+      'Sign in to create matches, manage teams, and track stats.';
+
+  @override
+  String get sign_in_continue_with_google => 'Continue with Google';
+
+  @override
+  String get sign_in_or_divider => 'or';
+
+  @override
+  String get sign_in_email_placeholder => 'Email';
+
+  @override
+  String get sign_in_password_placeholder => 'Password';
+
+  @override
+  String get sign_in_btn_text => 'Sign In';
+
+  @override
+  String get sign_in_no_account_text => 'Don’t have an account?';
+
+  @override
+  String get sign_in_sign_up_link_text => 'Sign Up';
+
+  @override
+  String get sign_in_invalid_email_text => 'Please enter a valid email';
+
+  @override
+  String get sign_in_invalid_password_text =>
+      'Password must be at least 6 characters';
+
+  @override
+  String get sign_up_title => 'Create your account';
+
+  @override
+  String get sign_up_description => 'Sign up with your email to get started.';
+
+  @override
+  String get sign_up_confirm_password_placeholder => 'Confirm password';
+
+  @override
+  String get sign_up_btn_text => 'Sign Up';
+
+  @override
+  String get sign_up_have_account_text => 'Already have an account?';
+
+  @override
+  String get sign_up_sign_in_link_text => 'Sign In';
+
+  @override
+  String get sign_up_password_mismatch_text => 'Passwords do not match';
+
+  @override
   String get otp_verification_verification_title => 'Verification code';
 
   @override

@@ -44,7 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return AppPage(
       titleWidget: SvgPicture.asset(
-        Assets.images.icAppLogo,
+        Assets.images.icAppLogoSvg,
         height: 28,
         width: 28,
         colorFilter: ColorFilter.mode(

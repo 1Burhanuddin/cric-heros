@@ -635,6 +635,114 @@ abstract class AppLocalizations {
   /// **'Please enter valid phone number'**
   String get sign_in_invalid_phone_number_text;
 
+  /// No description provided for @sign_in_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to CricHeros'**
+  String get sign_in_title;
+
+  /// No description provided for @sign_in_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to create matches, manage teams, and track stats.'**
+  String get sign_in_description;
+
+  /// No description provided for @sign_in_continue_with_google.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get sign_in_continue_with_google;
+
+  /// No description provided for @sign_in_or_divider.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get sign_in_or_divider;
+
+  /// No description provided for @sign_in_email_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get sign_in_email_placeholder;
+
+  /// No description provided for @sign_in_password_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get sign_in_password_placeholder;
+
+  /// No description provided for @sign_in_btn_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get sign_in_btn_text;
+
+  /// No description provided for @sign_in_no_account_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t have an account?'**
+  String get sign_in_no_account_text;
+
+  /// No description provided for @sign_in_sign_up_link_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get sign_in_sign_up_link_text;
+
+  /// No description provided for @sign_in_invalid_email_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email'**
+  String get sign_in_invalid_email_text;
+
+  /// No description provided for @sign_in_invalid_password_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get sign_in_invalid_password_text;
+
+  /// No description provided for @sign_up_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get sign_up_title;
+
+  /// No description provided for @sign_up_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up with your email to get started.'**
+  String get sign_up_description;
+
+  /// No description provided for @sign_up_confirm_password_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get sign_up_confirm_password_placeholder;
+
+  /// No description provided for @sign_up_btn_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get sign_up_btn_text;
+
+  /// No description provided for @sign_up_have_account_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get sign_up_have_account_text;
+
+  /// No description provided for @sign_up_sign_in_link_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get sign_up_sign_in_link_text;
+
+  /// No description provided for @sign_up_password_mismatch_text.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get sign_up_password_mismatch_text;
+
   /// No description provided for @otp_verification_verification_title.
   ///
   /// In en, this message translates to:

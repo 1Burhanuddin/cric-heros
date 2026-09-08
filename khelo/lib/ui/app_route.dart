@@ -37,12 +37,16 @@ import 'package:cricheros/ui/flow/tournament/team_selection/team_selection_scree
 import 'flow/home/view_all/home_view_all_screen.dart';
 import 'flow/main/main_screen.dart';
 import 'flow/settings/support/contact_support_screen.dart';
+import 'flow/sign_in/sign_in/sign_in_screen.dart';
 import 'flow/sign_in/sign_in_with_phone/sign_in_with_phone_screen.dart';
+import 'flow/sign_in/sign_up/sign_up_screen.dart';
 import 'flow/team/user_detail/user_detail_screen.dart';
 import 'flow/tournament/detail/tournament_detail_screen.dart';
 import 'flow/tournament/match_selection/match_selection_screen.dart';
 
 class AppRoute {
+  static const pathSignIn = '/sign-in';
+  static const pathSignUp = '/sign-up';
   static const pathPhoneNumberVerification = '/phone-number-verification';
   static const pathEditProfile = '/edit-profile';
   static const pathAddTeamMember = '/add-team-member';
@@ -148,6 +152,17 @@ class AppRoute {
 
   static AppRoute get phoneLogin =>
       AppRoute("/phone-login", builder: (_) => const SignInWithPhoneScreen());
+
+  // Phone OTP sign-in is shelved for now (no working SMS provider yet - see
+  // docs/launch-checklist.md) in favor of Google + email/password. The
+  // phone-login route/screen above is kept working and reachable by path so
+  // it's a quick re-add once a provider is set up - just not linked from the
+  // intro screen anymore.
+  static AppRoute get signIn =>
+      AppRoute(pathSignIn, builder: (_) => const SignInScreen());
+
+  static AppRoute get signUp =>
+      AppRoute(pathSignUp, builder: (_) => const SignUpScreen());
 
   static AppRoute get contactSupport => AppRoute(
         "/contact-support",
@@ -379,6 +394,8 @@ class AppRoute {
     ),
     contactSupport.goRoute(),
     phoneLogin.goRoute(),
+    signIn.goRoute(),
+    signUp.goRoute(),
     searchHome.goRoute(),
     GoRoute(
       path: pathViewAll,

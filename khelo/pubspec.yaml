@@ -67,9 +67,9 @@ dependencies:
   freezed_annotation: ^2.4.4
 
   # Supabase (auth, Postgres, storage, realtime) - the backend for
-  # everything except tournaments/leaderboard/contact_support, which are
-  # still on Firestore (cric_scoring issues #3/#4).
+  # everything now (tournaments/leaderboard/contact_support included).
   supabase_flutter: ^2.8.0
+  google_sign_in: ^6.2.1
 
   # crash reporting + push notifications (kept regardless of backend);
   # cloud_firestore/firebase_auth still needed for the non-migrated

@@ -83,13 +83,73 @@ class AuthService {
         phone: _e164(countryCode, phoneNumber),
         token: otp,
       );
+      await _completeSignIn(response.user, phone: true);
+    } on AppError {
+      rethrow;
+    } catch (error, stack) {
+      throw AppError.fromError(error, stack);
+    }
+  }
 
-      final authUser = response.user;
+  /// [idToken] comes from google_sign_in's `GoogleSignInAccount.authentication`
+  /// on the Flutter side (native Google account picker) - Supabase just
+  /// verifies it and issues its own session, no redirect/webview flow needed.
+  Future<void> signInWithGoogle({
+    required String idToken,
+    String? accessToken,
+  }) async {
+    try {
+      final response = await _supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+      await _completeSignIn(response.user);
+    } on AppError {
+      rethrow;
+    } catch (error, stack) {
+      throw AppError.fromError(error, stack);
+    }
+  }
+
+  Future<void> signUpWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await _supabase.auth.signUp(email: email, password: password);
+      await _completeSignIn(response.user);
+    } on AppError {
+      rethrow;
+    } catch (error, stack) {
+      throw AppError.fromError(error, stack);
+    }
+  }
+
+  Future<void> signInWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final response = await _supabase.auth.signInWithPassword(email: email, password: password);
+      await _completeSignIn(response.user);
+    } on AppError {
+      rethrow;
+    } catch (error, stack) {
+      throw AppError.fromError(error, stack);
+    }
+  }
+
+  Future<void> _completeSignIn(User? authUser, {bool phone = false}) async {
+    try {
       if (authUser == null) {
         throw const SomethingWentWrongError();
       }
 
-      final user = await _userService.getOrCreateProfile(authUser.id, phone: authUser.phone);
+      final user = await _userService.getOrCreateProfile(
+        authUser.id,
+        phone: phone ? authUser.phone : null,
+      );
       _currentUserNotifier.state = user.toJsonString();
 
       final deviceName = await _deviceService.deviceName;

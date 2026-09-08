@@ -39,6 +39,7 @@ class AppTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final TextCapitalization textCapitalization;
   final Function(PointerDownEvent)? onTapOutside;
+  final bool obscureText;
 
   const AppTextField({
     super.key,
@@ -76,6 +77,7 @@ class AppTextField extends StatelessWidget {
     this.prefixIconConstraints,
     this.textAlign = TextAlign.start,
     this.onTapOutside,
+    this.obscureText = false,
   });
 
   @override
@@ -108,6 +110,7 @@ class AppTextField extends StatelessWidget {
           controller: controller,
           onChanged: onChanged,
           enabled: enabled,
+          obscureText: obscureText,
           maxLines: maxLines,
           minLines: minLines,
           inputFormatters: inputFormatters,

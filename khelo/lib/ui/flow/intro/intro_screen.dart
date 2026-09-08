@@ -69,7 +69,7 @@ class _IntroScreenState extends ConsumerState<IntroScreen> {
             BottomStickyOverlay(
               child: PrimaryButton(
                 context.l10n.intro_continue_btn_text,
-                onPressed: () => AppRoute.phoneLogin.push(context),
+                onPressed: () => AppRoute.signIn.push(context),
               ),
             ),
           ],
