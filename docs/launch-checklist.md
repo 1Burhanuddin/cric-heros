@@ -8,9 +8,7 @@ Each item has a priority, a status, and an owner slot — claim one by putting y
 
 | # | Item | Status | Owner | Notes |
 |---|------|--------|-------|-------|
-| 1 | Android OAuth client for Google Sign-In | **Configured, pending on-device verification** | | Two Android OAuth clients created (debug + release SHA-1, package `com.cricheros.app`), both Client IDs added to Supabase's Google provider config, "Skip nonce checks" enabled (required for the native `google_sign_in` package + Supabase's `signInWithIdToken` combo). Not yet confirmed working end-to-end on a real device — next step once the device is free. |
 | 1b | OAuth consent screen still in "Testing" status | **Not started, not urgent yet** | | Google caps apps in Testing status at 100 users for sensitive scopes (the app only requests `email`, which isn't sensitive, so this is a soft limit for now). Fine for internal testing; needs either explicit test users added or full Google verification before onboarding real users at any scale. |
-| 2 | Android release signing | **Not configured** | | `khelo/android/app/build.gradle` has a `signingConfigs.release` block that reads `APKSIGN_KEYSTORE`/`APKSIGN_KEY_ALIAS`/etc. env vars, but falls back to the debug keystore if they're unset. No `key.properties` exists. Need: generate a real upload keystore, wire the env vars into local/CI build config. Also blocks #1 above (Google needs the release SHA-1 registered too). |
 | 3 | Final app icon | **Placeholder** | | `khelo/android/app/src/main/res/mipmap-*` — there's literally a file named `ic_app_logo_PLACEHOLDER_NOTICE.md` saying "temporary placeholder, replace before release." |
 | 4 | Privacy policy hosting + in-app links | **Wrong URLs** | | A real privacy policy doc exists at `docs/privacy-policy.md`, but it isn't hosted anywhere public. `khelo/lib/ui/flow/profile/profile_screen.dart:35-39` still links to `khelo.canopas.com/privacy-policy`, `khelo.canopas.com/terms-and-condition`, and the old Khelo Play Store/App Store listings. Play Store **requires** a working privacy policy URL in the listing to submit at all. Needs: host the doc (GitHub Pages is the easy option), update those 4 links. |
 | 5 | `google-services.json` committed to git | **Tracked** | | Client-safe to embed in the built app, but shouldn't sit in the repo — the store-prep commit intended to gitignore it but the rule is commented out in `.gitignore`. Low urgency but should stop tracking it going forward. |
@@ -21,7 +19,8 @@ Phone OTP was the #1 blocker (Twilio trial mode can't SMS arbitrary numbers, and
 
 - `AuthService.signInWithGoogle` / `signUpWithEmail` / `signInWithEmail` added, all sharing the same post-auth bookkeeping `verifyOTP` already used.
 - New sign-in/sign-up screens replace phone-login as the intro screen's destination. Phone-login code is untouched and still reachable at `/phone-login` — quick to bring back later.
-- The one loose end is Android OAuth client creation (item #1 above) — someone with Google Cloud Console access needs to finish that before Google Sign-In works end-to-end on a real device.
+- **Google Sign-In confirmed working end-to-end** on a real device: Android OAuth clients (debug + release SHA-1) created, Supabase Google provider updated, "Skip nonce checks" enabled, real sign-in tested and verified against the database (auth.users row + public.users profile both created correctly, email populated).
+- **Android release signing done**: real upload keystore generated, `build.gradle` wired to use it (`key.properties` → env vars → debug fallback), verified with an actual signed release build (`apksigner` confirms the new certificate, not debug).
 
 ## 🟡 Should fix before launch, not a hard blocker
 

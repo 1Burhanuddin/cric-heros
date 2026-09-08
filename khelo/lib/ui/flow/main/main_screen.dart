@@ -300,9 +300,9 @@ class _MainScreenState extends ConsumerState<MainScreen>
 
   List<TabItem> _tabItems(BuildContext context) => [
         TabItem(
-          tabIcon: _tabImage(context, imagePath: Assets.images.icHome),
+          tabIcon: _tabImage(context, imagePath: 'assets/images/icons/ic_house.svg'),
           tabActiveIcon: _tabImage(context,
-              imagePath: Assets.images.icHome, isActive: true),
+              imagePath: 'assets/images/icons/ic_house.svg', isActive: true),
           tabLabel: context.l10n.home_screen_title,
           route: '',
           onTap: () => _materialPageController.jumpToPage(0),
