@@ -57,6 +57,7 @@ class _MyGameTabScreenState extends ConsumerState<MyGameTabScreen>
     final notifier = ref.watch(myGameTabViewStateProvider.notifier);
 
     return AppPage(
+      title: context.l10n.my_cricket_screen_title,
       body: Builder(
         builder: (context) {
           return _content(context, notifier);

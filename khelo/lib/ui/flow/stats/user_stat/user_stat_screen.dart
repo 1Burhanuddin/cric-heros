@@ -54,6 +54,7 @@ class _UserStatScreenState extends ConsumerState<UserStatScreen>
   @override
   Widget build(BuildContext context) {
     return AppPage(
+      title: context.l10n.common_stats_title,
       body: Builder(builder: (context) => _body(context)),
     );
   }
