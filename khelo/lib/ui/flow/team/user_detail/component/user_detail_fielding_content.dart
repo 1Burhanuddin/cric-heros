@@ -1,10 +1,12 @@
 import 'package:cricheros_data/api/user/user_models.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import 'package:cricheros/domain/extensions/context_extensions.dart';
-import 'package:cricheros/ui/flow/team/user_detail/component/user_detail_bowling_content.dart';
+import 'package:cricheros_style/extensions/context_extensions.dart';
+import 'package:cricheros_style/text/app_text_style.dart';
 
-class UserDetailFieldingContent extends ConsumerWidget {
+import 'stat_display.dart';
+
+class UserDetailFieldingContent extends StatefulWidget {
   final int testMatchesCount;
   final int otherMatchesCount;
   final Fielding? testStats;
@@ -19,44 +21,57 @@ class UserDetailFieldingContent extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  State<UserDetailFieldingContent> createState() => _UserDetailFieldingContentState();
+}
+
+class _UserDetailFieldingContentState extends State<UserDetailFieldingContent> {
+  StatFormat _format = StatFormat.other;
+
+  @override
+  Widget build(BuildContext context) {
+    final isTest = _format == StatFormat.test;
+    final stats = (isTest ? widget.testStats : widget.otherStats) ?? const Fielding();
+    final matches = isTest ? widget.testMatchesCount : widget.otherMatchesCount;
+
     return ListView(
-      padding: const EdgeInsets.only(bottom: 40),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
       children: [
-        statsDataRow(
-          context,
-          isHeader: true,
-          showDivider: false,
-          title: context.l10n.common_fielding,
-          subtitle1: context.l10n.user_detail_test_title,
-          subtitle2: context.l10n.common_other_title,
+        Align(
+          alignment: Alignment.centerRight,
+          child: FormatToggle(selected: _format, onChanged: (f) => setState(() => _format = f)),
         ),
         const SizedBox(height: 16),
-        statsDataRow(
-          context,
-          showDivider: false,
-          title: context.l10n.user_detail_matches_title,
-          subtitle1: testMatchesCount.toString(),
-          subtitle2: otherMatchesCount.toString(),
+        StatHeroGrid(tiles: [
+          StatHeroTile(
+            accent: true,
+            value: stats.catches.toString(),
+            label: context.l10n.user_detail_catches_title,
+          ),
+          StatHeroTile(
+            value: stats.runOut.toString(),
+            label: context.l10n.user_detail_run_out_title,
+          ),
+          StatHeroTile(
+            value: stats.stumping.toString(),
+            label: context.l10n.user_detail_stumping_title,
+          ),
+          StatHeroTile(
+            value: matches.toString(),
+            label: context.l10n.user_detail_matches_title,
+          ),
+        ]),
+        const SizedBox(height: 20),
+        Text(
+          context.l10n.common_fielding,
+          style: AppTextStyle.header4.copyWith(color: context.colorScheme.textPrimary),
         ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_catches_title,
-          subtitle1: testStats?.catches.toString(),
-          subtitle2: otherStats?.catches.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_run_out_title,
-          subtitle1: testStats?.runOut.toString(),
-          subtitle2: otherStats?.runOut.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_stumping_title,
-          subtitle1: testStats?.stumping.toString(),
-          subtitle2: otherStats?.stumping.toString(),
-        ),
+        const SizedBox(height: 10),
+        StatList(rows: [
+          (context.l10n.user_detail_matches_title, matches.toString()),
+          (context.l10n.user_detail_catches_title, stats.catches.toString()),
+          (context.l10n.user_detail_run_out_title, stats.runOut.toString()),
+          (context.l10n.user_detail_stumping_title, stats.stumping.toString()),
+        ]),
       ],
     );
   }

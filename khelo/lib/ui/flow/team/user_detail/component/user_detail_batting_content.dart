@@ -1,10 +1,12 @@
 import 'package:cricheros_data/api/user/user_models.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cricheros/domain/extensions/context_extensions.dart';
-import 'package:cricheros/ui/flow/team/user_detail/component/user_detail_bowling_content.dart';
+import 'package:cricheros_style/extensions/context_extensions.dart';
+import 'package:cricheros_style/text/app_text_style.dart';
 
-class UserDetailBattingContent extends ConsumerWidget {
+import 'stat_display.dart';
+
+class UserDetailBattingContent extends StatefulWidget {
   final int testMatchesCount;
   final int otherMatchesCount;
   final Batting? testStats;
@@ -19,86 +21,65 @@ class UserDetailBattingContent extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  State<UserDetailBattingContent> createState() => _UserDetailBattingContentState();
+}
+
+class _UserDetailBattingContentState extends State<UserDetailBattingContent> {
+  StatFormat _format = StatFormat.other;
+
+  @override
+  Widget build(BuildContext context) {
+    final isTest = _format == StatFormat.test;
+    final stats = (isTest ? widget.testStats : widget.otherStats) ?? const Batting();
+    final matches = isTest ? widget.testMatchesCount : widget.otherMatchesCount;
+
     return ListView(
-      padding: const EdgeInsets.only(bottom: 40),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
       children: [
-        statsDataRow(
-          context,
-          isHeader: true,
-          showDivider: false,
-          title: context.l10n.common_batting,
-          subtitle1: context.l10n.user_detail_test_title,
-          subtitle2: context.l10n.common_other_title,
+        Align(
+          alignment: Alignment.centerRight,
+          child: FormatToggle(selected: _format, onChanged: (f) => setState(() => _format = f)),
         ),
         const SizedBox(height: 16),
-        statsDataRow(
-          context,
-          showDivider: false,
-          title: context.l10n.user_detail_matches_title,
-          subtitle1: testMatchesCount.toString(),
-          subtitle2: otherMatchesCount.toString(),
+        StatHeroGrid(tiles: [
+          StatHeroTile(
+            accent: true,
+            value: stats.run_scored.toString(),
+            label: context.l10n.user_detail_runs_title,
+          ),
+          StatHeroTile(
+            value: stats.average.toStringAsFixed(1),
+            label: context.l10n.user_detail_average_title,
+          ),
+          StatHeroTile(
+            value: stats.strike_rate.toStringAsFixed(1),
+            label: context.l10n.user_detail_strike_rate_title,
+          ),
+          StatHeroTile(
+            value: stats.hundreds.toString(),
+            pairValue: stats.fifties.toString(),
+            label: '${context.l10n.user_detail_hundreds_title} / ${context.l10n.user_detail_fifties_title}',
+          ),
+        ]),
+        const SizedBox(height: 20),
+        Text(
+          context.l10n.common_batting,
+          style: AppTextStyle.header4.copyWith(color: context.colorScheme.textPrimary),
         ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_innings_title,
-          subtitle1: testStats?.innings.toString(),
-          subtitle2: otherStats?.innings.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_runs_title,
-          subtitle1: testStats?.run_scored.toString(),
-          subtitle2: otherStats?.run_scored.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_balls_title,
-          subtitle1: testStats?.ball_faced.toString(),
-          subtitle2: otherStats?.ball_faced.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_average_title,
-          subtitle1: testStats?.average.toStringAsFixed(1),
-          subtitle2: otherStats?.average.toStringAsFixed(1),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_strike_rate_title,
-          subtitle1: testStats?.strike_rate.toStringAsFixed(1),
-          subtitle2: otherStats?.strike_rate.toStringAsFixed(1),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_fours_title,
-          subtitle1: testStats?.fours.toString(),
-          subtitle2: otherStats?.fours.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_sixes_title,
-          subtitle1: testStats?.sixes.toString(),
-          subtitle2: otherStats?.sixes.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_ducks_title,
-          subtitle1: testStats?.ducks.toString(),
-          subtitle2: otherStats?.ducks.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_fifties_title,
-          subtitle1: testStats?.fifties.toString(),
-          subtitle2: otherStats?.fifties.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_hundreds_title,
-          subtitle1: testStats?.hundreds.toString(),
-          subtitle2: otherStats?.hundreds.toString(),
-        ),
+        const SizedBox(height: 10),
+        StatList(rows: [
+          (context.l10n.user_detail_matches_title, matches.toString()),
+          (context.l10n.user_detail_innings_title, stats.innings.toString()),
+          (context.l10n.user_detail_runs_title, stats.run_scored.toString()),
+          (context.l10n.user_detail_balls_title, stats.ball_faced.toString()),
+          (context.l10n.user_detail_average_title, stats.average.toStringAsFixed(1)),
+          (context.l10n.user_detail_strike_rate_title, stats.strike_rate.toStringAsFixed(1)),
+          (context.l10n.user_detail_fours_title, stats.fours.toString()),
+          (context.l10n.user_detail_sixes_title, stats.sixes.toString()),
+          (context.l10n.user_detail_fifties_title, stats.fifties.toString()),
+          (context.l10n.user_detail_hundreds_title, stats.hundreds.toString()),
+          (context.l10n.user_detail_ducks_title, stats.ducks.toString()),
+        ]),
       ],
     );
   }

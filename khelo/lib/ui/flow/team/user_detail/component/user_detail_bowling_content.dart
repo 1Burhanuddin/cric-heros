@@ -1,11 +1,12 @@
 import 'package:cricheros_data/api/user/user_models.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cricheros/domain/extensions/context_extensions.dart';
 import 'package:cricheros_style/extensions/context_extensions.dart';
 import 'package:cricheros_style/text/app_text_style.dart';
 
-class UserDetailBowlingContent extends ConsumerWidget {
+import 'stat_display.dart';
+
+class UserDetailBowlingContent extends StatefulWidget {
   final int testMatchesCount;
   final int otherMatchesCount;
   final Bowling? testStats;
@@ -20,127 +21,65 @@ class UserDetailBowlingContent extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  State<UserDetailBowlingContent> createState() => _UserDetailBowlingContentState();
+}
+
+class _UserDetailBowlingContentState extends State<UserDetailBowlingContent> {
+  StatFormat _format = StatFormat.other;
+
+  @override
+  Widget build(BuildContext context) {
+    final isTest = _format == StatFormat.test;
+    final stats = (isTest ? widget.testStats : widget.otherStats) ?? const Bowling();
+    final matches = isTest ? widget.testMatchesCount : widget.otherMatchesCount;
+
     return ListView(
-      padding: const EdgeInsets.only(bottom: 40),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
       children: [
-        statsDataRow(
-          context,
-          isHeader: true,
-          showDivider: false,
-          title: context.l10n.common_bowling,
-          subtitle1: context.l10n.user_detail_test_title,
-          subtitle2: context.l10n.common_other_title,
+        Align(
+          alignment: Alignment.centerRight,
+          child: FormatToggle(selected: _format, onChanged: (f) => setState(() => _format = f)),
         ),
         const SizedBox(height: 16),
-        statsDataRow(
-          context,
-          showDivider: false,
-          title: context.l10n.user_detail_matches_title,
-          subtitle1: testMatchesCount.toString(),
-          subtitle2: otherMatchesCount.toString(),
+        StatHeroGrid(tiles: [
+          StatHeroTile(
+            accent: true,
+            value: stats.wicket_taken.toString(),
+            label: context.l10n.user_detail_wickets_title,
+          ),
+          StatHeroTile(
+            value: stats.economy_rate.toStringAsFixed(2),
+            label: context.l10n.user_detail_eco_title,
+          ),
+          StatHeroTile(
+            value: stats.average.toStringAsFixed(1),
+            label: context.l10n.user_detail_average_title,
+          ),
+          StatHeroTile(
+            value: stats.maiden.toString(),
+            label: context.l10n.user_detail_maidens_title,
+          ),
+        ]),
+        const SizedBox(height: 20),
+        Text(
+          context.l10n.common_bowling,
+          style: AppTextStyle.header4.copyWith(color: context.colorScheme.textPrimary),
         ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_innings_title,
-          subtitle1: testStats?.innings.toString(),
-          subtitle2: otherStats?.innings.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_balls_title,
-          subtitle1: testStats?.balls.toString(),
-          subtitle2: otherStats?.balls.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_runs_title,
-          subtitle1: testStats?.runs_conceded.toString(),
-          subtitle2: otherStats?.runs_conceded.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_maidens_title,
-          subtitle1: testStats?.maiden.toString(),
-          subtitle2: otherStats?.maiden.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_wickets_title,
-          subtitle1: testStats?.wicket_taken.toString(),
-          subtitle2: otherStats?.wicket_taken.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_eco_title,
-          subtitle1: testStats?.economy_rate.toStringAsFixed(1),
-          subtitle2: otherStats?.economy_rate.toStringAsFixed(1),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_no_ball_title,
-          subtitle1: testStats?.no_balls.toString(),
-          subtitle2: otherStats?.no_balls.toString(),
-        ),
-        statsDataRow(
-          context,
-          title: context.l10n.user_detail_wide_ball_title,
-          subtitle1: testStats?.wide_balls.toString(),
-          subtitle2: otherStats?.wide_balls.toString(),
-        ),
+        const SizedBox(height: 10),
+        StatList(rows: [
+          (context.l10n.user_detail_matches_title, matches.toString()),
+          (context.l10n.user_detail_innings_title, stats.innings.toString()),
+          (context.l10n.user_detail_balls_title, stats.balls.toString()),
+          (context.l10n.user_detail_runs_title, stats.runs_conceded.toString()),
+          (context.l10n.user_detail_maidens_title, stats.maiden.toString()),
+          (context.l10n.user_detail_wickets_title, stats.wicket_taken.toString()),
+          (context.l10n.user_detail_eco_title, stats.economy_rate.toStringAsFixed(2)),
+          (context.l10n.user_detail_average_title, stats.average.toStringAsFixed(1)),
+          (context.l10n.user_detail_strike_rate_title, stats.strike_rate.toStringAsFixed(1)),
+          (context.l10n.user_detail_no_ball_title, stats.no_balls.toString()),
+          (context.l10n.user_detail_wide_ball_title, stats.wide_balls.toString()),
+        ]),
       ],
     );
   }
-}
-
-Widget statsDataRow(
-  BuildContext context, {
-  bool isHeader = false,
-  bool showDivider = true,
-  required String title,
-  required String? subtitle1,
-  required String? subtitle2,
-}) {
-  return Column(
-    children: [
-      if (showDivider) Divider(color: context.colorScheme.outline),
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Expanded(
-                flex: 4,
-                child: Text(
-                  title,
-                  style: isHeader
-                      ? AppTextStyle.header4
-                          .copyWith(color: context.colorScheme.textPrimary)
-                      : AppTextStyle.subtitle3
-                          .copyWith(color: context.colorScheme.textSecondary),
-                )),
-            Expanded(
-                child: Text(
-              subtitle1 ?? '0',
-              textAlign: TextAlign.center,
-              style: isHeader
-                  ? AppTextStyle.subtitle1
-                      .copyWith(color: context.colorScheme.textPrimary)
-                  : AppTextStyle.subtitle2
-                      .copyWith(color: context.colorScheme.textPrimary),
-            )),
-            Expanded(
-                child: Text(
-              subtitle2 ?? '0',
-              textAlign: TextAlign.center,
-              style: isHeader
-                  ? AppTextStyle.subtitle1
-                      .copyWith(color: context.colorScheme.textPrimary)
-                  : AppTextStyle.subtitle2
-                      .copyWith(color: context.colorScheme.textPrimary),
-            )),
-          ],
-        ),
-      ),
-    ],
-  );
 }
