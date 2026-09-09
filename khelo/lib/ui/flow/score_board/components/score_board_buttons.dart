@@ -2,12 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:cricheros/domain/extensions/context_extensions.dart';
 import 'package:cricheros/ui/flow/score_board/score_board_view_model.dart';
 import 'package:cricheros_style/animations/on_tap_scale.dart';
 import 'package:cricheros_style/extensions/context_extensions.dart';
 import 'package:cricheros_style/text/app_text_style.dart';
 
+/// "Grouped cards" keypad: runs, sheet-opening extras, and the two
+/// destructive/high-stakes actions (undo/out) are visually distinct groups
+/// instead of one uniform grid - the shape of a control now hints at what
+/// kind of action it is. Every ScoreButton from the original grid is still
+/// here (including five-or-seven, previously easy to miss since it lived
+/// alone in the side column) and every button keeps its long-press
+/// (used for "runs, not a boundary" on four/six, and for the fielding-
+/// position wagon-wheel prompt on the rest - see
+/// ScoreBoardViewNotifier._showFieldingPositionSheet).
 class ScoreBoardButtons extends StatelessWidget {
   final Function(ScoreButton, bool) onTap;
 
@@ -18,133 +26,172 @@ class ScoreBoardButtons extends StatelessWidget {
     return Expanded(
       child: Container(
         color: context.colorScheme.containerLow,
-        padding: EdgeInsets.only(
-            top: 24,
-            bottom: MediaQuery.of(context).viewPadding.bottom + 16,
-            left: 16,
-            right: 8),
-        child: Row(
+        padding: EdgeInsets.fromLTRB(
+            16, 16, 16, MediaQuery.of(context).viewPadding.bottom + 16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(
-              flex: 3,
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: 3,
-                    child: _buttonRow(context,
-                        buttons: [
-                          ScoreButton.zero,
-                          ScoreButton.one,
-                          ScoreButton.two
-                        ],
-                        backgroundColor: context.colorScheme.containerLow),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: _buttonRow(context,
-                        buttons: [
-                          ScoreButton.three,
-                          ScoreButton.four,
-                          ScoreButton.six
-                        ],
-                        backgroundColor: context.colorScheme.containerLow),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: _buttonRow(context, buttons: [
-                      ScoreButton.wideBall,
-                      ScoreButton.noBall,
-                      ScoreButton.bye
-                    ]),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Column(
-                children: [
-                  Expanded(
-                      child: _scoreButton(
-                    context: context,
-                    btn: ScoreButton.undo,
-                    tintColor: context.colorScheme.positive,
-                  )),
-                  Expanded(
-                      child: _scoreButton(
-                    context: context,
-                    btn: ScoreButton.fiveOrSeven,
-                  )),
-                  Expanded(
-                      child: _scoreButton(
-                    context: context,
-                    btn: ScoreButton.out,
-                    tintColor: context.colorScheme.alert,
-                  )),
-                  Expanded(
-                      child: _scoreButton(
-                    context: context,
-                    btn: ScoreButton.legBye,
-                  ))
-                ],
-              ),
-            ),
+            _runsCard(context),
+            const SizedBox(height: 10),
+            _extrasRow(context),
+            const SizedBox(height: 10),
+            _actionRow(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buttonRow(
-    BuildContext context, {
-    required List<ScoreButton> buttons,
-    Color? backgroundColor,
-  }) {
-    return Row(
-        children: buttons
-            .map((button) => Expanded(
-                    child: _scoreButton(
-                  context: context,
-                  btn: button,
-                  backgroundColor: backgroundColor,
-                )))
-            .toList());
+  Widget _runsCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: context.colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          Row(children: [
+            _runKey(context, ScoreButton.zero),
+            _gap,
+            _runKey(context, ScoreButton.one),
+            _gap,
+            _runKey(context, ScoreButton.two),
+          ]),
+          _rowGap,
+          Row(children: [
+            _runKey(context, ScoreButton.three),
+            _gap,
+            _runKey(context, ScoreButton.four,
+                tintColor: context.colorScheme.secondary),
+            _gap,
+            _runKey(context, ScoreButton.six,
+                tintColor: context.colorScheme.primary),
+          ]),
+        ],
+      ),
+    );
   }
 
-  Widget _scoreButton({
-    required BuildContext context,
-    required ScoreButton btn,
+  Widget get _gap => const SizedBox(width: 8);
+  Widget get _rowGap => const SizedBox(height: 8);
+
+  Widget _runKey(
+    BuildContext context,
+    ScoreButton btn, {
     Color? tintColor,
-    Color? backgroundColor,
   }) {
+    return Expanded(
+      child: _tappable(
+        btn: btn,
+        child: Container(
+          height: 52,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: context.colorScheme.containerLowOnSurface,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            btn.getTitle(context),
+            style: AppTextStyle.header4
+                .copyWith(color: tintColor ?? context.colorScheme.textPrimary),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _extrasRow(BuildContext context) {
+    final extras = [
+      ScoreButton.wideBall,
+      ScoreButton.noBall,
+      ScoreButton.bye,
+      ScoreButton.legBye,
+      ScoreButton.fiveOrSeven,
+    ];
+    return Row(
+      children: [
+        for (final btn in extras) ...[
+          Expanded(child: _extraPill(context, btn)),
+          if (btn != extras.last) const SizedBox(width: 6),
+        ],
+      ],
+    );
+  }
+
+  Widget _extraPill(BuildContext context, ScoreButton btn) {
+    return _tappable(
+      btn: btn,
+      child: Container(
+        height: 34,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(100),
+          border: Border.all(color: context.colorScheme.outline),
+        ),
+        child: Text(
+          btn.getTitle(context),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyle.caption
+              .copyWith(color: context.colorScheme.textSecondary),
+        ),
+      ),
+    );
+  }
+
+  Widget _actionRow(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _tappable(
+            btn: ScoreButton.undo,
+            child: Container(
+              height: 44,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: context.colorScheme.positive.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Text(
+                ScoreButton.undo.getTitle(context),
+                style: AppTextStyle.button
+                    .copyWith(color: context.colorScheme.positive),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _tappable(
+            btn: ScoreButton.out,
+            child: Container(
+              height: 44,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: context.colorScheme.alert,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Text(
+                ScoreButton.out.getTitle(context),
+                style: AppTextStyle.button
+                    .copyWith(color: context.colorScheme.onPrimary),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _tappable({required ScoreButton btn, required Widget child}) {
     return OnTapScale(
       onTap: () => onTap(btn, false),
       onLongTap: () {
         HapticFeedback.mediumImpact();
         onTap(btn, true);
       },
-      child: Container(
-        alignment: Alignment.center,
-        margin: const EdgeInsets.only(bottom: 8, right: 8),
-        decoration: BoxDecoration(
-            color: backgroundColor ?? context.colorScheme.surface,
-            borderRadius: BorderRadius.circular(8)),
-        child: Text.rich(
-          TextSpan(text: btn.getTitle(context), children: [
-            if (btn == ScoreButton.four || btn == ScoreButton.six) ...[
-              TextSpan(
-                  text: btn == ScoreButton.four
-                      ? "\n${context.l10n.score_board_four_title}"
-                      : "\n${context.l10n.score_board_six_title}",
-                  style: AppTextStyle.body1.copyWith(
-                      color: tintColor ?? context.colorScheme.textDisabled)),
-            ]
-          ]),
-          textAlign: TextAlign.center,
-          style: AppTextStyle.subtitle1
-              .copyWith(color: tintColor ?? context.colorScheme.textDisabled),
-        ),
-      ),
+      child: child,
     );
   }
 }

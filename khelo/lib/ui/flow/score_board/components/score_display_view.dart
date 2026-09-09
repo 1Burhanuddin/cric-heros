@@ -30,36 +30,32 @@ class ScoreDisplayView extends ConsumerWidget {
 
     return Expanded(
       child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
         children: [
-          _matchScoreView(context, state),
-          const SizedBox(height: 32),
-          Divider(height: 0, color: context.colorScheme.outline),
-          _batsManDetailsView(context, state),
-          _bowlerAndBallDetailView(context, state),
+          _scoreHero(context, state),
+          const SizedBox(height: 16),
+          _batsmenCards(context, state),
+          const SizedBox(height: 12),
+          _bowlerStrip(context, state),
+          const SizedBox(height: 10),
+          _ballHistoryListView(context),
         ],
       ),
     );
   }
 
-  Widget _teamName(
+  String _teamLabel(
     BuildContext context, {
     required bool isBatting,
     String? inningString,
   }) {
-    final teamName = isBatting
+    return isBatting
         ? (battingTeamName ?? "") +
             (inningString != null ? " - $inningString" : "")
         : bowlingTeamName ?? "";
-    return Text(
-      teamName,
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-      style: AppTextStyle.subtitle1
-          .copyWith(color: context.colorScheme.textPrimary),
-    );
   }
 
-  Widget _matchScoreView(
+  Widget _scoreHero(
     BuildContext context,
     ScoreBoardViewState state,
   ) {
@@ -69,45 +65,44 @@ class ScoreDisplayView extends ConsumerWidget {
             : context.l10n.common_second_inning_title
         : null;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-          color: context.colorScheme.containerLowOnSurface,
-          borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _teamName(context, isBatting: true, inningString: inningString),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text.rich(
-                textAlign: TextAlign.center,
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text:
-                          '${state.currentInning?.total_runs ?? 0}/${state.otherInning?.total_wickets ?? 0}',
-                      style: AppTextStyle.header1
-                          .copyWith(color: context.colorScheme.textPrimary),
-                    ),
-                    TextSpan(
-                      text:
-                          '($overCountString/${state.match?.revised_target?.overs ?? state.match?.number_of_over})',
-                      style: AppTextStyle.body1
-                          .copyWith(color: context.colorScheme.textPrimary),
-                    ),
-                  ],
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _teamLabel(context, isBatting: true, inningString: inningString),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyle.body2
+              .copyWith(color: context.colorScheme.textSecondary),
+        ),
+        const SizedBox(height: 2),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text:
+                        '${state.currentInning?.total_runs ?? 0}/${state.otherInning?.total_wickets ?? 0}',
+                    style: AppTextStyle.header1.copyWith(
+                        fontSize: 34, color: context.colorScheme.textPrimary),
+                  ),
+                  TextSpan(
+                    text:
+                        ' ($overCountString/${state.match?.revised_target?.overs ?? state.match?.number_of_over})',
+                    style: AppTextStyle.body1
+                        .copyWith(color: context.colorScheme.textSecondary),
+                  ),
+                ],
               ),
-              _powerPlayTag(context, state)
-            ],
-          ),
-          _runNeededText(context, state),
-        ],
-      ),
+            ),
+            const Spacer(),
+            _powerPlayTag(context, state),
+          ],
+        ),
+        _runNeededPill(context, state),
+      ],
     );
   }
 
@@ -116,15 +111,15 @@ class ScoreDisplayView extends ConsumerWidget {
     ScoreBoardViewState state,
   ) {
     final powerPlayText = _getPowerPlayText(context, state);
-    if (powerPlayText != null) {
-      return Text(
+    if (powerPlayText == null) return const SizedBox();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Text(
         powerPlayText,
-        style: AppTextStyle.caption
-            .copyWith(color: context.colorScheme.textDisabled),
-      );
-    } else {
-      return const SizedBox();
-    }
+        style:
+            AppTextStyle.caption.copyWith(color: context.colorScheme.primary),
+      ),
+    );
   }
 
   String? _getPowerPlayText(BuildContext context, ScoreBoardViewState state) {
@@ -140,31 +135,40 @@ class ScoreDisplayView extends ConsumerWidget {
     return null;
   }
 
-  Widget _runNeededText(
+  Widget _runNeededPill(
     BuildContext context,
     ScoreBoardViewState state,
   ) {
-    if (state.nextInning == null) {
-      final requiredRun = getRequiredRun(state);
-      final pendingOver = (state.match?.revised_target?.overs.toInt() ??
-              state.match?.number_of_over ??
-              0) -
-          state.overCount;
-      final pendingBall = (pendingOver * 6) + (6 - state.ballCount);
-      return Text(
-        state.match?.match_type == MatchType.testMatch
-            ? context.l10n
-                .score_board_need_run_text(requiredRun < 0 ? 0 : requiredRun)
-            : context.l10n.score_board_run_need_in_ball_text(
-                requiredRun < 0 ? 0 : requiredRun,
-                pendingBall < 0 ? 0 : pendingBall),
-        textAlign: TextAlign.center,
-        style:
-            AppTextStyle.caption.copyWith(color: context.colorScheme.secondary),
-      );
-    } else {
-      return const SizedBox();
-    }
+    if (state.nextInning != null) return const SizedBox();
+
+    final requiredRun = getRequiredRun(state);
+    final pendingOver = (state.match?.revised_target?.overs.toInt() ??
+            state.match?.number_of_over ??
+            0) -
+        state.overCount;
+    final pendingBall = (pendingOver * 6) + (6 - state.ballCount);
+    final text = state.match?.match_type == MatchType.testMatch
+        ? context.l10n
+            .score_board_need_run_text(requiredRun < 0 ? 0 : requiredRun)
+        : context.l10n.score_board_run_need_in_ball_text(
+            requiredRun < 0 ? 0 : requiredRun,
+            pendingBall < 0 ? 0 : pendingBall);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: context.colorScheme.secondary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: Text(
+          text,
+          style: AppTextStyle.caption
+              .copyWith(color: context.colorScheme.secondary),
+        ),
+      ),
+    );
   }
 
   int getRequiredRun(ScoreBoardViewState state) {
@@ -179,24 +183,20 @@ class ScoreDisplayView extends ConsumerWidget {
         (currentPlayingTeam?.run ?? 0);
   }
 
-  Widget _batsManDetailsView(BuildContext context, ScoreBoardViewState state) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: IntrinsicHeight(
-        child: Row(
-          children: [
-            _batManCellView(context, state, state.batsMans?.firstOrNull),
-            VerticalDivider(
-              color: context.colorScheme.outline,
-            ),
-            _batManCellView(context, state, state.batsMans?.elementAtOrNull(1)),
-          ],
-        ),
-      ),
+  Widget _batsmenCards(BuildContext context, ScoreBoardViewState state) {
+    return Row(
+      children: [
+        Expanded(
+            child: _batManCard(context, state, state.batsMans?.firstOrNull)),
+        const SizedBox(width: 8),
+        Expanded(
+            child: _batManCard(
+                context, state, state.batsMans?.elementAtOrNull(1))),
+      ],
     );
   }
 
-  Widget _batManCellView(
+  Widget _batManCard(
     BuildContext context,
     ScoreBoardViewState state,
     MatchPlayer? user,
@@ -204,50 +204,67 @@ class ScoreDisplayView extends ConsumerWidget {
     bool isOnStrike = state.strikerId == user?.player.id;
     final (run, ball) =
         _getBatsManTotalRuns(state, user?.player.id ?? "INVALID ID");
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedOpacity(
-              opacity: isOnStrike ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 300),
-              child: SvgPicture.asset(
-                Assets.images.icBatSelected,
-                height: 24,
-                width: 24,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AnimatedDefaultTextStyle(
-                    style: AppTextStyle.subtitle1.copyWith(
-                        color: isOnStrike
-                            ? context.colorScheme.secondary
-                            : context.colorScheme.textPrimary),
-                    overflow: TextOverflow.ellipsis,
-                    duration: const Duration(milliseconds: 300),
-                    child: Text(
-                      user?.player.name ??
-                          context.l10n.score_board_player_title,
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: isOnStrike
+            ? context.colorScheme.secondary.withValues(alpha: 0.12)
+            : context.colorScheme.containerLowOnSurface,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: AnimatedDefaultTextStyle(
+                        style: AppTextStyle.body2.copyWith(
+                            color: isOnStrike
+                                ? context.colorScheme.secondary
+                                : context.colorScheme.textPrimary),
+                        overflow: TextOverflow.ellipsis,
+                        duration: const Duration(milliseconds: 300),
+                        child: Text(
+                          user?.player.name ??
+                              context.l10n.score_board_player_title,
+                          maxLines: 1,
+                        ),
+                      ),
                     ),
-                  ),
-                  Text(
-                    "$run($ball)",
-                    style: AppTextStyle.body2
-                        .copyWith(color: context.colorScheme.textDisabled),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
+                    AnimatedOpacity(
+                      opacity: isOnStrike ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 300),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4),
+                        child: SvgPicture.asset(
+                          Assets.images.icBatSelected,
+                          height: 14,
+                          width: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  "$ball balls",
+                  style: AppTextStyle.caption
+                      .copyWith(color: context.colorScheme.textDisabled),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            "$run",
+            style: AppTextStyle.header3
+                .copyWith(color: context.colorScheme.textPrimary),
+          ),
+        ],
       ),
     );
   }
@@ -268,62 +285,41 @@ class ScoreDisplayView extends ConsumerWidget {
     return (totalRuns, batsManFacedBall);
   }
 
-  Widget _bowlerAndBallDetailView(
+  Widget _bowlerStrip(
     BuildContext context,
     ScoreBoardViewState state,
   ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      color: context.colorScheme.containerLow,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _teamName(context, isBatting: false),
-          ),
-          const SizedBox(height: 8),
-          _bowlerNameView(
-              context,
-              state.bowler?.player.name ??
-                  context.l10n.score_board_player_title),
-          const SizedBox(height: 16),
-          _ballHistoryListView(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _bowlerNameView(BuildContext context, String name) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: SvgPicture.asset(
-                  Assets.images.icCricket,
-                  height: 16,
-                  width: 16,
-                  colorFilter: ColorFilter.mode(
-                      context.colorScheme.secondary, BlendMode.srcIn),
-                )),
-            TextSpan(
-              text: ' $name',
-              style: AppTextStyle.subtitle1
-                  .copyWith(color: context.colorScheme.secondary),
-            ),
-          ],
+    return Row(
+      children: [
+        SvgPicture.asset(
+          Assets.images.icCricket,
+          height: 14,
+          width: 14,
+          colorFilter:
+              ColorFilter.mode(context.colorScheme.textSecondary, BlendMode.srcIn),
         ),
-      ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            state.bowler?.player.name ?? context.l10n.score_board_player_title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.body2
+                .copyWith(color: context.colorScheme.textSecondary),
+          ),
+        ),
+        Text(
+          _teamLabel(context, isBatting: false),
+          style: AppTextStyle.caption
+              .copyWith(color: context.colorScheme.textDisabled),
+        ),
+      ],
     );
   }
 
   Widget _ballHistoryListView(BuildContext context) {
     return SingleChildScrollView(
       reverse: true,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
@@ -347,17 +343,17 @@ class ScoreDisplayView extends ConsumerWidget {
               .copyWith(color: context.colorScheme.textPrimary));
     }
     return Container(
-      height: 48,
-      width: 48,
+      height: 40,
+      width: 40,
       alignment: Alignment.center,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: bgColor,
       ),
       child: Text(
         _getTextBasedOnBall(context, ball),
-        style: AppTextStyle.body2.copyWith(color: tintColor),
+        style: AppTextStyle.caption.copyWith(color: tintColor),
       ),
     );
   }
