@@ -77,22 +77,28 @@ class _SearchTeamScreenState extends ConsumerState<SearchTeamScreen> {
             ),
           ),
         ),
-        actionButton(
-          context,
-          onPressed: state.selectedTeam != null
-              ? () => _handleSaveAction(context, state)
-              : null,
-          icon: SvgPicture.asset(
-            Assets.images.icCheck,
-            colorFilter: ColorFilter.mode(
-              state.selectedTeam != null
-                  ? context.colorScheme.textPrimary
-                  : context.colorScheme.textDisabled,
-              BlendMode.srcIn,
-            ),
-          ),
-        ),
       ],
+      floatingActionButton: state.selectedTeam != null
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 24),
+              child: FloatingActionButton.extended(
+                backgroundColor: context.colorScheme.primary,
+                onPressed: () => _handleSaveAction(context, state),
+                icon: SvgPicture.asset(
+                  Assets.images.icCheck,
+                  colorFilter: ColorFilter.mode(
+                    context.colorScheme.onPrimary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                label: Text(
+                  context.l10n.common_select_title,
+                  style: AppTextStyle.subtitle2
+                      .copyWith(color: context.colorScheme.onPrimary),
+                ),
+              ),
+            )
+          : null,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
