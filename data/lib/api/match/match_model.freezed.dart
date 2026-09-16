@@ -59,6 +59,7 @@ mixin _$MatchModel {
   String? get toss_winner_id => throw _privateConstructorUsedError;
   String? get current_playing_team_id => throw _privateConstructorUsedError;
   RevisedTarget? get revised_target => throw _privateConstructorUsedError;
+  String? get man_of_the_match_id => throw _privateConstructorUsedError;
   @TimeStampJsonConverter()
   DateTime? get updated_at => throw _privateConstructorUsedError;
 
@@ -116,6 +117,7 @@ abstract class $MatchModelCopyWith<$Res> {
       String? toss_winner_id,
       String? current_playing_team_id,
       RevisedTarget? revised_target,
+      String? man_of_the_match_id,
       @TimeStampJsonConverter() DateTime? updated_at});
 
   $UserModelCopyWith<$Res>? get referee;
@@ -171,6 +173,7 @@ class _$MatchModelCopyWithImpl<$Res, $Val extends MatchModel>
     Object? toss_winner_id = freezed,
     Object? current_playing_team_id = freezed,
     Object? revised_target = freezed,
+    Object? man_of_the_match_id = freezed,
     Object? updated_at = freezed,
   }) {
     return _then(_value.copyWith(
@@ -310,6 +313,10 @@ class _$MatchModelCopyWithImpl<$Res, $Val extends MatchModel>
           ? _value.revised_target
           : revised_target // ignore: cast_nullable_to_non_nullable
               as RevisedTarget?,
+      man_of_the_match_id: freezed == man_of_the_match_id
+          ? _value.man_of_the_match_id
+          : man_of_the_match_id // ignore: cast_nullable_to_non_nullable
+              as String?,
       updated_at: freezed == updated_at
           ? _value.updated_at
           : updated_at // ignore: cast_nullable_to_non_nullable
@@ -392,6 +399,7 @@ abstract class _$$MatchModelImplCopyWith<$Res>
       String? toss_winner_id,
       String? current_playing_team_id,
       RevisedTarget? revised_target,
+      String? man_of_the_match_id,
       @TimeStampJsonConverter() DateTime? updated_at});
 
   @override
@@ -447,6 +455,7 @@ class __$$MatchModelImplCopyWithImpl<$Res>
     Object? toss_winner_id = freezed,
     Object? current_playing_team_id = freezed,
     Object? revised_target = freezed,
+    Object? man_of_the_match_id = freezed,
     Object? updated_at = freezed,
   }) {
     return _then(_$MatchModelImpl(
@@ -586,6 +595,10 @@ class __$$MatchModelImplCopyWithImpl<$Res>
           ? _value.revised_target
           : revised_target // ignore: cast_nullable_to_non_nullable
               as RevisedTarget?,
+      man_of_the_match_id: freezed == man_of_the_match_id
+          ? _value.man_of_the_match_id
+          : man_of_the_match_id // ignore: cast_nullable_to_non_nullable
+              as String?,
       updated_at: freezed == updated_at
           ? _value.updated_at
           : updated_at // ignore: cast_nullable_to_non_nullable
@@ -636,6 +649,7 @@ class _$MatchModelImpl implements _MatchModel {
       this.toss_winner_id,
       this.current_playing_team_id,
       this.revised_target,
+      this.man_of_the_match_id,
       @TimeStampJsonConverter() this.updated_at})
       : _teams = teams,
         _players = players,
@@ -828,12 +842,14 @@ class _$MatchModelImpl implements _MatchModel {
   @override
   final RevisedTarget? revised_target;
   @override
+  final String? man_of_the_match_id;
+  @override
   @TimeStampJsonConverter()
   final DateTime? updated_at;
 
   @override
   String toString() {
-    return 'MatchModel(id: $id, teams: $teams, tournament_id: $tournament_id, match_group: $match_group, match_group_number: $match_group_number, match_type: $match_type, number_of_over: $number_of_over, over_per_bowler: $over_per_bowler, players: $players, team_ids: $team_ids, team_creator_ids: $team_creator_ids, power_play_overs1: $power_play_overs1, power_play_overs2: $power_play_overs2, power_play_overs3: $power_play_overs3, city: $city, ground: $ground, start_time: $start_time, start_at: $start_at, ball_type: $ball_type, pitch_type: $pitch_type, created_by: $created_by, umpires: $umpires, scorers: $scorers, commentators: $commentators, referee: $referee, umpire_ids: $umpire_ids, scorer_ids: $scorer_ids, commentator_ids: $commentator_ids, referee_id: $referee_id, match_status: $match_status, toss_decision: $toss_decision, toss_winner_id: $toss_winner_id, current_playing_team_id: $current_playing_team_id, revised_target: $revised_target, updated_at: $updated_at)';
+    return 'MatchModel(id: $id, teams: $teams, tournament_id: $tournament_id, match_group: $match_group, match_group_number: $match_group_number, match_type: $match_type, number_of_over: $number_of_over, over_per_bowler: $over_per_bowler, players: $players, team_ids: $team_ids, team_creator_ids: $team_creator_ids, power_play_overs1: $power_play_overs1, power_play_overs2: $power_play_overs2, power_play_overs3: $power_play_overs3, city: $city, ground: $ground, start_time: $start_time, start_at: $start_at, ball_type: $ball_type, pitch_type: $pitch_type, created_by: $created_by, umpires: $umpires, scorers: $scorers, commentators: $commentators, referee: $referee, umpire_ids: $umpire_ids, scorer_ids: $scorer_ids, commentator_ids: $commentator_ids, referee_id: $referee_id, match_status: $match_status, toss_decision: $toss_decision, toss_winner_id: $toss_winner_id, current_playing_team_id: $current_playing_team_id, revised_target: $revised_target, man_of_the_match_id: $man_of_the_match_id, updated_at: $updated_at)';
   }
 
   @override
@@ -901,6 +917,8 @@ class _$MatchModelImpl implements _MatchModel {
                 other.current_playing_team_id == current_playing_team_id) &&
             (identical(other.revised_target, revised_target) ||
                 other.revised_target == revised_target) &&
+            (identical(other.man_of_the_match_id, man_of_the_match_id) ||
+                other.man_of_the_match_id == man_of_the_match_id) &&
             (identical(other.updated_at, updated_at) ||
                 other.updated_at == updated_at));
   }
@@ -943,6 +961,7 @@ class _$MatchModelImpl implements _MatchModel {
         toss_winner_id,
         current_playing_team_id,
         revised_target,
+        man_of_the_match_id,
         updated_at
       ]);
 
@@ -1002,6 +1021,7 @@ abstract class _MatchModel implements MatchModel {
       final String? toss_winner_id,
       final String? current_playing_team_id,
       final RevisedTarget? revised_target,
+      final String? man_of_the_match_id,
       @TimeStampJsonConverter() final DateTime? updated_at}) = _$MatchModelImpl;
 
   factory _MatchModel.fromJson(Map<String, dynamic> json) =
@@ -1080,6 +1100,8 @@ abstract class _MatchModel implements MatchModel {
   String? get current_playing_team_id;
   @override
   RevisedTarget? get revised_target;
+  @override
+  String? get man_of_the_match_id;
   @override
   @TimeStampJsonConverter()
   DateTime? get updated_at;

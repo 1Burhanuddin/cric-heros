@@ -1199,6 +1199,12 @@ abstract class AppLocalizations {
   /// **'Featured Matches'**
   String get tournament_detail_overview_featured_matches_title;
 
+  /// No description provided for @tournament_detail_overview_man_of_the_tournament_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Man of the Tournament'**
+  String get tournament_detail_overview_man_of_the_tournament_title;
+
   /// No description provided for @tournament_detail_teams_empty_title.
   ///
   /// In en, this message translates to:
@@ -1979,6 +1985,18 @@ abstract class AppLocalizations {
   /// **'Please fill the required details'**
   String get add_match_empty_fields_error;
 
+  /// No description provided for @add_match_ground_required_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Ground is required'**
+  String get add_match_ground_required_error;
+
+  /// No description provided for @add_match_city_required_error.
+  ///
+  /// In en, this message translates to:
+  /// **'City is required'**
+  String get add_match_city_required_error;
+
   /// No description provided for @add_match_unselected_team_error.
   ///
   /// In en, this message translates to:
@@ -2572,6 +2590,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Overs'**
   String get match_detail_overs_tab_title;
+
+  /// No description provided for @match_detail_man_of_the_match_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Man of the Match'**
+  String get match_detail_man_of_the_match_title;
 
   /// No description provided for @match_detail_match_not_started_error_title.
   ///

@@ -56,6 +56,7 @@ class MatchModel with _$MatchModel {
     String? toss_winner_id,
     String? current_playing_team_id,
     RevisedTarget? revised_target,
+    String? man_of_the_match_id,
     @TimeStampJsonConverter() DateTime? updated_at,
   }) = _MatchModel;
 

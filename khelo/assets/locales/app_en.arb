@@ -277,6 +277,7 @@
   "tournament_detail_overview_teams_squads_title": "Teams Squads",
   "tournament_detail_overview_key_stats_title": "Key Stats",
   "tournament_detail_overview_featured_matches_title": "Featured Matches",
+  "tournament_detail_overview_man_of_the_tournament_title": "Man of the Tournament",
 
   "tournament_detail_teams_empty_title": "Select Your Teams!",
   "tournament_detail_teams_empty_description": "You haven't added any teams to this tournament yet. Please select or create teams to get started.",
@@ -439,6 +440,8 @@
   "add_match_officials_add_officials_title": "Add officials",
   "add_match_invalid_over_count_error": "Please enter valid total over",
   "add_match_empty_fields_error": "Please fill the required details",
+  "add_match_ground_required_error": "Ground is required",
+  "add_match_city_required_error": "City is required",
   "add_match_unselected_team_error": "Please select teams",
   "add_match_invalid_squad_error": "Please select valid squad",
 
@@ -589,6 +592,7 @@
   "match_detail_match_info_tab_title": "Info",
   "match_detail_highlight_tab_title": "Highlight",
   "match_detail_overs_tab_title": "Overs",
+  "match_detail_man_of_the_match_title": "Man of the Match",
   "match_detail_match_not_started_error_title": "Match has not started yet.",
   "match_detail_error_description_text": "The detailed will be available after the start of the match.",
   "match_detail_highlight_empty_title": "No highlights currently available.",

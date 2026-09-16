@@ -333,6 +333,17 @@ class MatchService {
     }
   }
 
+  Future<void> updateManOfTheMatch(String matchId, String playerId) async {
+    try {
+      await _supabase.from('matches').update({
+        'man_of_the_match_id': playerId,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('id', matchId);
+    } catch (error, stack) {
+      throw AppError.fromError(error, stack);
+    }
+  }
+
   Future<void> updateTeamsSquad(
     String matchId,
     MatchTeamModel teamRequest,
@@ -523,6 +534,7 @@ class MatchService {
                   : null,
             )
           : null,
+      man_of_the_match_id: row['man_of_the_match_id'] as String?,
       updated_at: row['updated_at'] != null ? DateTime.parse(row['updated_at'] as String) : null,
     );
   }

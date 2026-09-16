@@ -33,6 +33,7 @@ _$TournamentModelImpl _$$TournamentModelImplFromJson(Map json) =>
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      man_of_the_tournament_id: json['man_of_the_tournament_id'] as String?,
     );
 
 Map<String, dynamic> _$$TournamentModelImplToJson(
@@ -51,6 +52,7 @@ Map<String, dynamic> _$$TournamentModelImplToJson(
       'end_date': const TimeStampJsonConverter().toJson(instance.end_date),
       'team_ids': instance.team_ids,
       'match_ids': instance.match_ids,
+      'man_of_the_tournament_id': instance.man_of_the_tournament_id,
     };
 
 const _$TournamentTypeEnumMap = {

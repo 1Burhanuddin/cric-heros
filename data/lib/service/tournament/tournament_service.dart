@@ -353,9 +353,39 @@ class TournamentService {
           await _updatePlayerKeyStats(tournamentId, updatedKeyStat);
         }
       }
+
+      await _updateManOfTheTournament(tournamentId);
     } catch (error, stack) {
       throw AppError.fromError(error, stack);
     }
+  }
+
+  // Man of the Tournament = current top run-scorer, i.e. whoever the "All"
+  // filter on the tournament stats tab already ranks first (see
+  // KeyStatFilterTag.all's sort in tournament_detail_view_model.dart).
+  // Recomputed after every match so it stays live-updated through the
+  // tournament rather than only being set once at the end.
+  Future<void> _updateManOfTheTournament(String tournamentId) async {
+    final rows = await _supabase
+        .from('tournament_player_key_stats')
+        .select('player_id, stats')
+        .eq('tournament_id', tournamentId);
+    if (rows.isEmpty) return;
+
+    String? topPlayerId;
+    int topRuns = -1;
+    for (final row in rows) {
+      final runs = (row['stats']?['batting']?['run_scored'] as num?)?.toInt() ?? 0;
+      if (runs > topRuns) {
+        topRuns = runs;
+        topPlayerId = row['player_id'] as String?;
+      }
+    }
+    if (topPlayerId == null || topRuns <= 0) return;
+
+    await _supabase
+        .from('tournaments')
+        .update({'man_of_the_tournament_id': topPlayerId}).eq('id', tournamentId);
   }
 
   Future<void> updateTeamIds(
@@ -481,6 +511,7 @@ class TournamentService {
       start_date: DateTime.parse(row['start_date'] as String),
       end_date: DateTime.parse(row['end_date'] as String),
       team_ids: teamRows.map((t) => (t as Map<String, dynamic>)['team_id'] as String).toList(),
+      man_of_the_tournament_id: row['man_of_the_tournament_id'] as String?,
       members: memberRows
           .map((m) => TournamentMember(
                 id: (m as Map<String, dynamic>)['user_id'] as String,

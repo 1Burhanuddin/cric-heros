@@ -655,6 +655,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Featured Matches';
 
   @override
+  String get tournament_detail_overview_man_of_the_tournament_title =>
+      'Man of the Tournament';
+
+  @override
   String get tournament_detail_teams_empty_title => 'Select Your Teams!';
 
   @override
@@ -1089,6 +1093,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get add_match_empty_fields_error => 'Please fill the required details';
 
   @override
+  String get add_match_ground_required_error => 'Ground is required';
+
+  @override
+  String get add_match_city_required_error => 'City is required';
+
+  @override
   String get add_match_unselected_team_error => 'Please select teams';
 
   @override
@@ -1427,6 +1437,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get match_detail_overs_tab_title => 'Overs';
+
+  @override
+  String get match_detail_man_of_the_match_title => 'Man of the Match';
 
   @override
   String get match_detail_match_not_started_error_title =>
