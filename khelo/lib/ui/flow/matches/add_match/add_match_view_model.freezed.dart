@@ -46,6 +46,7 @@ mixin _$AddMatchViewState {
   bool get isPowerPlayButtonEnable => throw _privateConstructorUsedError;
   AddMatchErrorType? get saveBtnError => throw _privateConstructorUsedError;
   AddMatchErrorType? get startBtnError => throw _privateConstructorUsedError;
+  bool get showFieldErrors => throw _privateConstructorUsedError;
   bool get isAddMatchInProgress => throw _privateConstructorUsedError;
   bool? get pushTossDetailScreen => throw _privateConstructorUsedError;
   MatchModel? get match => throw _privateConstructorUsedError;
@@ -90,6 +91,7 @@ abstract class $AddMatchViewStateCopyWith<$Res> {
       bool isPowerPlayButtonEnable,
       AddMatchErrorType? saveBtnError,
       AddMatchErrorType? startBtnError,
+      bool showFieldErrors,
       bool isAddMatchInProgress,
       bool? pushTossDetailScreen,
       MatchModel? match});
@@ -140,6 +142,7 @@ class _$AddMatchViewStateCopyWithImpl<$Res, $Val extends AddMatchViewState>
     Object? isPowerPlayButtonEnable = null,
     Object? saveBtnError = freezed,
     Object? startBtnError = freezed,
+    Object? showFieldErrors = null,
     Object? isAddMatchInProgress = null,
     Object? pushTossDetailScreen = freezed,
     Object? match = freezed,
@@ -243,6 +246,10 @@ class _$AddMatchViewStateCopyWithImpl<$Res, $Val extends AddMatchViewState>
           ? _value.startBtnError
           : startBtnError // ignore: cast_nullable_to_non_nullable
               as AddMatchErrorType?,
+      showFieldErrors: null == showFieldErrors
+          ? _value.showFieldErrors
+          : showFieldErrors // ignore: cast_nullable_to_non_nullable
+              as bool,
       isAddMatchInProgress: null == isAddMatchInProgress
           ? _value.isAddMatchInProgress
           : isAddMatchInProgress // ignore: cast_nullable_to_non_nullable
@@ -336,6 +343,7 @@ abstract class _$$AddMatchViewStateImplCopyWith<$Res>
       bool isPowerPlayButtonEnable,
       AddMatchErrorType? saveBtnError,
       AddMatchErrorType? startBtnError,
+      bool showFieldErrors,
       bool isAddMatchInProgress,
       bool? pushTossDetailScreen,
       MatchModel? match});
@@ -387,6 +395,7 @@ class __$$AddMatchViewStateImplCopyWithImpl<$Res>
     Object? isPowerPlayButtonEnable = null,
     Object? saveBtnError = freezed,
     Object? startBtnError = freezed,
+    Object? showFieldErrors = null,
     Object? isAddMatchInProgress = null,
     Object? pushTossDetailScreen = freezed,
     Object? match = freezed,
@@ -490,6 +499,10 @@ class __$$AddMatchViewStateImplCopyWithImpl<$Res>
           ? _value.startBtnError
           : startBtnError // ignore: cast_nullable_to_non_nullable
               as AddMatchErrorType?,
+      showFieldErrors: null == showFieldErrors
+          ? _value.showFieldErrors
+          : showFieldErrors // ignore: cast_nullable_to_non_nullable
+              as bool,
       isAddMatchInProgress: null == isAddMatchInProgress
           ? _value.isAddMatchInProgress
           : isAddMatchInProgress // ignore: cast_nullable_to_non_nullable
@@ -536,6 +549,7 @@ class _$AddMatchViewStateImpl implements _AddMatchViewState {
       this.isPowerPlayButtonEnable = false,
       this.saveBtnError,
       this.startBtnError,
+      this.showFieldErrors = false,
       this.isAddMatchInProgress = false,
       this.pushTossDetailScreen = null,
       this.match = null})
@@ -655,6 +669,9 @@ class _$AddMatchViewStateImpl implements _AddMatchViewState {
   final AddMatchErrorType? startBtnError;
   @override
   @JsonKey()
+  final bool showFieldErrors;
+  @override
+  @JsonKey()
   final bool isAddMatchInProgress;
   @override
   @JsonKey()
@@ -665,7 +682,7 @@ class _$AddMatchViewStateImpl implements _AddMatchViewState {
 
   @override
   String toString() {
-    return 'AddMatchViewState(matchTime: $matchTime, totalOverController: $totalOverController, overPerBowlerController: $overPerBowlerController, cityController: $cityController, groundController: $groundController, error: $error, actionError: $actionError, teamA: $teamA, teamB: $teamB, squadA: $squadA, squadB: $squadB, teamACaptainId: $teamACaptainId, teamBCaptainId: $teamBCaptainId, teamAAdminId: $teamAAdminId, teamBAdminId: $teamBAdminId, officials: $officials, firstPowerPlay: $firstPowerPlay, secondPowerPlay: $secondPowerPlay, thirdPowerPlay: $thirdPowerPlay, pitchType: $pitchType, matchType: $matchType, ballType: $ballType, loading: $loading, isPowerPlayButtonEnable: $isPowerPlayButtonEnable, saveBtnError: $saveBtnError, startBtnError: $startBtnError, isAddMatchInProgress: $isAddMatchInProgress, pushTossDetailScreen: $pushTossDetailScreen, match: $match)';
+    return 'AddMatchViewState(matchTime: $matchTime, totalOverController: $totalOverController, overPerBowlerController: $overPerBowlerController, cityController: $cityController, groundController: $groundController, error: $error, actionError: $actionError, teamA: $teamA, teamB: $teamB, squadA: $squadA, squadB: $squadB, teamACaptainId: $teamACaptainId, teamBCaptainId: $teamBCaptainId, teamAAdminId: $teamAAdminId, teamBAdminId: $teamBAdminId, officials: $officials, firstPowerPlay: $firstPowerPlay, secondPowerPlay: $secondPowerPlay, thirdPowerPlay: $thirdPowerPlay, pitchType: $pitchType, matchType: $matchType, ballType: $ballType, loading: $loading, isPowerPlayButtonEnable: $isPowerPlayButtonEnable, saveBtnError: $saveBtnError, startBtnError: $startBtnError, showFieldErrors: $showFieldErrors, isAddMatchInProgress: $isAddMatchInProgress, pushTossDetailScreen: $pushTossDetailScreen, match: $match)';
   }
 
   @override
@@ -721,6 +738,8 @@ class _$AddMatchViewStateImpl implements _AddMatchViewState {
                 other.saveBtnError == saveBtnError) &&
             (identical(other.startBtnError, startBtnError) ||
                 other.startBtnError == startBtnError) &&
+            (identical(other.showFieldErrors, showFieldErrors) ||
+                other.showFieldErrors == showFieldErrors) &&
             (identical(other.isAddMatchInProgress, isAddMatchInProgress) ||
                 other.isAddMatchInProgress == isAddMatchInProgress) &&
             (identical(other.pushTossDetailScreen, pushTossDetailScreen) ||
@@ -757,6 +776,7 @@ class _$AddMatchViewStateImpl implements _AddMatchViewState {
         isPowerPlayButtonEnable,
         saveBtnError,
         startBtnError,
+        showFieldErrors,
         isAddMatchInProgress,
         pushTossDetailScreen,
         match
@@ -800,6 +820,7 @@ abstract class _AddMatchViewState implements AddMatchViewState {
       final bool isPowerPlayButtonEnable,
       final AddMatchErrorType? saveBtnError,
       final AddMatchErrorType? startBtnError,
+      final bool showFieldErrors,
       final bool isAddMatchInProgress,
       final bool? pushTossDetailScreen,
       final MatchModel? match}) = _$AddMatchViewStateImpl;
@@ -856,6 +877,8 @@ abstract class _AddMatchViewState implements AddMatchViewState {
   AddMatchErrorType? get saveBtnError;
   @override
   AddMatchErrorType? get startBtnError;
+  @override
+  bool get showFieldErrors;
   @override
   bool get isAddMatchInProgress;
   @override

@@ -141,8 +141,9 @@ class AddMatchViewNotifier extends StateNotifier<AddMatchViewState> {
   }
 
   Future<void> addMatch({bool startMatch = false}) async {
+    if (state.isAddMatchInProgress) return;
     try {
-      state = state.copyWith(actionError: null);
+      state = state.copyWith(actionError: null, isAddMatchInProgress: true);
 
       final totalOvers = state.totalOverController.text.trim();
       final overPerBowler = state.overPerBowlerController.text.trim();
@@ -242,7 +243,7 @@ class AddMatchViewNotifier extends StateNotifier<AddMatchViewState> {
               startMatch ? editMatch?.toss_winner_id == null : null,
           match: !startMatch ? match : null);
     } catch (e) {
-      state = state.copyWith(actionError: e);
+      state = state.copyWith(actionError: e, isAddMatchInProgress: false);
       debugPrint("AddMatchViewNotifier: error while adding match -> $e");
     }
   }
@@ -361,6 +362,10 @@ class AddMatchViewNotifier extends StateNotifier<AddMatchViewState> {
         startBtnError: error);
   }
 
+  void onSaveAttemptedWithError() {
+    state = state.copyWith(showFieldErrors: true);
+  }
+
   void onPowerPlayChange(List<List<int>> powerPlay) {
     state = state.copyWith(
         firstPowerPlay: powerPlay.elementAtOrNull(0),
@@ -427,6 +432,7 @@ class AddMatchViewState with _$AddMatchViewState {
     @Default(false) bool isPowerPlayButtonEnable,
     AddMatchErrorType? saveBtnError,
     AddMatchErrorType? startBtnError,
+    @Default(false) bool showFieldErrors,
     @Default(false) bool isAddMatchInProgress,
     @Default(null) bool? pushTossDetailScreen,
     @Default(null) MatchModel? match,
