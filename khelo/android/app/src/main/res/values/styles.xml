@@ -2,8 +2,10 @@
 <resources>
     <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is off -->
     <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <!-- CricHeros brand splash background -->
-        <item name="android:windowBackground">@color/colorPrimary</item>
+        <!-- White splash background so the launcher icon (also on a white
+             adaptive-icon background) doesn't sit on a mismatched red field
+             during the OS's automatic startup splash. -->
+        <item name="android:windowBackground">@color/ic_launcher_background</item>
         <item name="android:statusBarColor">@color/statusBarColor</item>
     </style>
     <!-- Theme applied to the Android Window as soon as the process has started.

@@ -99,6 +99,16 @@ dev_dependencies:
   go_router_builder: ^2.7.1
   freezed: ^2.5.7
   flutter_gen_runner: ^5.7.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  image_path: "assets/images/app_icon_source.png"
+  android: true
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/app_icon_source.png"
+  remove_alpha_ios: true
+  ios: false
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
