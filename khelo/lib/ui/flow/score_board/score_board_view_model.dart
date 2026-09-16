@@ -63,6 +63,11 @@ class ScoreBoardViewNotifier extends StateNotifier<ScoreBoardViewState> {
   String? matchId;
   List<MatchEventModel> matchEvents = [];
   List<PartnershipModel> partnerships = [];
+  // Id of the last ball whose over/inning-complete check already ran
+  // optimistically in addBall() (see there for why). Lets the realtime
+  // echo of that same ball, once it arrives, recognize there's nothing
+  // left to do instead of redoing the check and re-showing sheets.
+  String? _optimisticallyProcessedBallId;
 
   ScoreBoardViewNotifier(
     this._matchService,
@@ -163,11 +168,24 @@ class ScoreBoardViewNotifier extends StateNotifier<ScoreBoardViewState> {
         }
       });
       _matchStreamSubscription = matchInningStream.listen((matchStream) {
-        if (!state.ballScoreQueryListenerSet) {
+        final wasBallScoreListenerSet = state.ballScoreQueryListenerSet;
+        if (!wasBallScoreListenerSet) {
           _loadBallScore();
         }
         if (matchStream is MatchModel) {
           _matchStreamController.add(matchStream);
+        } else if (!wasBallScoreListenerSet &&
+            state.ballScoreQueryListenerSet &&
+            state.match != null) {
+          // _loadBallScore() just activated on this event (both innings
+          // finally available - they can arrive as two separate realtime
+          // events, one row at a time), but this particular emission didn't
+          // carry a MatchModel downstream (isMatchChanged/isInningChanged
+          // were both false for it, e.g. the second of those two innings
+          // events). _loadBallScore()'s own stream needs an initial match
+          // value from _matchStreamController or it never emits and the
+          // screen is stuck on its loading spinner forever.
+          _matchStreamController.add(state.match!);
         }
       }, onError: (e, stack) {
         debugPrint(
@@ -344,6 +362,15 @@ class ScoreBoardViewNotifier extends StateNotifier<ScoreBoardViewState> {
     }
     BallScoreModel? lastBall;
     lastBall = _getLastBallExceptPenaltyBall();
+
+    if (!isAfterUndo &&
+        lastBall != null &&
+        lastBall.id == _optimisticallyProcessedBallId) {
+      // This is the realtime echo of a ball addBall() already applied and
+      // ran the completion check for optimistically - nothing left to do,
+      // and re-running it would re-show the same over/inning-complete sheet.
+      return;
+    }
 
     // last_ball is not over's last ball or if last_ball_of_over then is_illegal_delivery ? bowler_id : null
     final bowlerId = lastBall?.bowler_id;
@@ -705,7 +732,37 @@ class ScoreBoardViewNotifier extends StateNotifier<ScoreBoardViewState> {
         otherTotalBowlingTeamRuns: otherBowlingInning?.total_runs ?? 0,
         updatedPlayer: updatedPlayer,
       );
-      state = state.copyWith(isActionInProgress: false);
+
+      if (wicketType == null) {
+        // Optimistic update: the write just succeeded, and we already know
+        // exactly what this ball is (it's the same data just sent above) -
+        // no need to wait for the realtime echo to reflect it, which is
+        // what was making every run feel 1-2s slow. Wicket balls are
+        // excluded: they also change squad/batting-status data that only
+        // _configureCurrentBatsmen() (driven by the match realtime stream)
+        // knows how to recompute, so those still wait for the round trip.
+        _optimisticallyProcessedBallId = ball.id;
+        state = state.copyWith(
+          currentScoresList: state.currentScoresList.toList()..add(ball),
+          currentInning: state.currentInning?.copyWith(total_runs: totalRuns),
+          otherInning: bowlingTeamRuns != null
+              ? state.otherInning?.copyWith(total_runs: bowlingTeamRuns)
+              : state.otherInning,
+          overCount: ball.over_number,
+          ballCount: ballCount,
+          position: null,
+          tappedButton: null,
+          isLongTap: null,
+        );
+        _checkIfInningComplete();
+      }
+      // Otherwise (wicket balls), isActionInProgress stays true on purpose:
+      // it's the only guard against a second tap slipping a ball in before
+      // this one has round-tripped through realtime and
+      // _checkIfInningComplete has run (see _configureScoringDetails),
+      // which is what let matches keep scoring past their over limit.
+      // Every path through _configureScoringDetails/_checkIfInningComplete
+      // already resets it to false once that check has actually run.
     } catch (e) {
       debugPrint("ScoreBoardViewNotifier: error while adding ball -> $e");
       state = state.copyWith(
@@ -1059,12 +1116,60 @@ class ScoreBoardViewNotifier extends StateNotifier<ScoreBoardViewState> {
       await _tournamentService.updateTournamentStats(
         tournamentId: state.match!.tournament_id!,
         match: state.match!.copyWith(match_status: MatchStatus.finish),
-        ballScores: state.currentScoresList,
+        // Unlike _updatePlayerStats() (called once per inning, via both
+        // startNextInning() and here), this only runs once, at match end -
+        // so it needs every inning's balls in one go, not just the last
+        // inning's (state.currentScoresList alone silently dropped the
+        // first inning's contribution to tournament stats).
+        ballScores: [...state.currentScoresList, ...state.previousScoresList],
       );
     } catch (e) {
       if (mounted) {
         debugPrint(
             "ScoreBoardViewNotifier: Error updating tournament stats -> $e");
+      }
+    }
+  }
+
+  // Simple, transparent points formula (fantasy-cricket-style) combining
+  // batting + bowling + fielding from this single match into one score,
+  // used to pick a Man of the Match. Not meant to be a rigorous cricket
+  // metric - just a reasonable, easy-to-explain tie-breaker among the
+  // match's players.
+  void _computeManOfTheMatch() async {
+    try {
+      final match = state.match;
+      if (match == null || !mounted) return;
+      final ballScores = [
+        ...state.currentScoresList,
+        ...state.previousScoresList
+      ];
+      if (ballScores.isEmpty) return;
+
+      MatchPlayer? bestPlayer;
+      int bestScore = -1;
+      for (final team in match.teams) {
+        for (final player in team.squad) {
+          final stats = ballScores.calculateUserStats(player.id);
+          final score = stats.batting.run_scored +
+              stats.batting.fours * 1 +
+              stats.batting.sixes * 2 +
+              stats.bowling.wicket_taken * 20 +
+              stats.fielding.catches * 8 +
+              stats.fielding.runOut * 8 +
+              stats.fielding.stumping * 8;
+          if (score > bestScore) {
+            bestScore = score;
+            bestPlayer = player;
+          }
+        }
+      }
+      if (bestPlayer == null || bestScore <= 0) return;
+      await _matchService.updateManOfTheMatch(match.id, bestPlayer.id);
+    } catch (e) {
+      if (mounted) {
+        debugPrint(
+            "ScoreBoardViewNotifier: Error computing man of the match -> $e");
       }
     }
   }
@@ -1572,6 +1677,9 @@ class ScoreBoardViewNotifier extends StateNotifier<ScoreBoardViewState> {
       _updatePlayerStats();
       _updateTeamStats();
       _updateTournamentStats();
+      if (status == MatchStatus.finish) {
+        _computeManOfTheMatch();
+      }
 
       state = state.copyWith(pop: true, isActionInProgress: false);
     } catch (e) {

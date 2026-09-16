@@ -9,6 +9,7 @@ import 'package:cricheros/ui/flow/score_board/components/user_cell_view.dart';
 import 'package:cricheros/ui/flow/score_board/score_board_view_model.dart';
 import 'package:cricheros_style/button/primary_button.dart';
 import 'package:cricheros_style/extensions/context_extensions.dart';
+import 'package:cricheros_style/indicator/progress_indicator.dart';
 import 'package:cricheros_style/text/app_text_style.dart';
 
 class StrikerSelectionSheet extends ConsumerStatefulWidget {
@@ -52,6 +53,7 @@ class _StrikerSelectionSheetState extends ConsumerState<StrikerSelectionSheet> {
     final state = ref.watch(scoreBoardStateProvider);
 
     return BottomSheetWrapper(
+        contentBottomSpacing: 8,
         content: _selectPlayerContent(context, state),
         action: [
           PrimaryButton(
@@ -75,23 +77,28 @@ class _StrikerSelectionSheetState extends ConsumerState<StrikerSelectionSheet> {
               .copyWith(color: context.colorScheme.textPrimary),
         ),
         const SizedBox(height: 16),
-        Wrap(
-            spacing: 16,
-            runSpacing: 16,
-            children: state.batsMans
-                    ?.map((player) => UserCellView(
-                        title: player.player.name ??
-                            context.l10n.common_anonymous_title,
-                        imageUrl: player.player.profile_img_url,
-                        initial: player.player.nameInitial,
-                        isSelected: selectedUser?.id == player.player.id,
-                        onTap: () {
-                          setState(() {
-                            selectedUser = player.player;
-                          });
-                        }))
-                    .toList() ??
-                []),
+        if (state.batsMans == null || state.batsMans!.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 24),
+            child: Center(child: AppProgressIndicator()),
+          )
+        else
+          Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: state.batsMans!
+                  .map((player) => UserCellView(
+                      title: player.player.name ??
+                          context.l10n.common_anonymous_title,
+                      imageUrl: player.player.profile_img_url,
+                      initial: player.player.nameInitial,
+                      isSelected: selectedUser?.id == player.player.id,
+                      onTap: () {
+                        setState(() {
+                          selectedUser = player.player;
+                        });
+                      }))
+                  .toList()),
       ],
     );
   }

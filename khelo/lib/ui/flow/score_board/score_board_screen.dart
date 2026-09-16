@@ -81,17 +81,13 @@ class _ScoreBoardScreenState extends ConsumerState<ScoreBoardScreen> {
     _observeEndMatchSheet(context, ref);
     _observeInvalidUndoToast(context, ref);
 
-    return PopScope(
-      canPop: false,
-      child: AppPage(
-        title: context.l10n.score_board_screen_title,
-        actions: [_moreOptionButton(context, state)],
-        automaticallyImplyLeading: false,
-        resizeToAvoidBottomInset: false,
-        body: Builder(builder: (context) {
-          return _body(context, state);
-        }),
-      ),
+    return AppPage(
+      title: context.l10n.score_board_screen_title,
+      actions: [_moreOptionButton(context, state)],
+      resizeToAvoidBottomInset: false,
+      body: Builder(builder: (context) {
+        return _body(context, state);
+      }),
     );
   }
 
@@ -158,13 +154,23 @@ class _ScoreBoardScreenState extends ConsumerState<ScoreBoardScreen> {
 
     return Column(
       children: [
-        ScoreDisplayView(
-          currentOverBall: notifier.getCurrentOverBall(),
-          overCountString: notifier.getOverCount(),
-          battingTeamName: notifier.getTeamName(),
-          bowlingTeamName: notifier.getTeamName(isBattingTeam: false),
+        // The display panel now carries more content (hero + 2 stat tables +
+        // ball history) than the keypad, so it gets a bigger share of the
+        // split instead of a flat 50/50 - flex lives here (not inside each
+        // widget's own build()) so both shares can be tuned in one place.
+        Expanded(
+          flex: 6,
+          child: ScoreDisplayView(
+            currentOverBall: notifier.getCurrentOverBall(),
+            overCountString: notifier.getOverCount(),
+            battingTeamName: notifier.getTeamName(),
+            bowlingTeamName: notifier.getTeamName(isBattingTeam: false),
+          ),
         ),
-        ScoreBoardButtons(onTap: notifier.onScoreButtonTap),
+        Expanded(
+          flex: 5,
+          child: ScoreBoardButtons(onTap: notifier.onScoreButtonTap),
+        ),
       ],
     );
   }

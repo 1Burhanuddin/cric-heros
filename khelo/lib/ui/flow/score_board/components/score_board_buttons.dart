@@ -16,6 +16,12 @@ import 'package:cricheros_style/text/app_text_style.dart';
 /// (used for "runs, not a boundary" on four/six, and for the fielding-
 /// position wagon-wheel prompt on the rest - see
 /// ScoreBoardViewNotifier._showFieldingPositionSheet).
+///
+/// Everything below sizes itself with flex ratios (Expanded), never a fixed
+/// pixel height - this widget is always given whatever vertical space the
+/// parent Expanded leaves it (which varies a lot between portrait and
+/// landscape), and a fixed-height layout will either leave dead space or
+/// overflow depending on how much room that turns out to be.
 class ScoreBoardButtons extends StatelessWidget {
   final Function(ScoreButton, bool) onTap;
 
@@ -23,21 +29,21 @@ class ScoreBoardButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        color: context.colorScheme.containerLow,
-        padding: EdgeInsets.fromLTRB(
-            16, 16, 16, MediaQuery.of(context).viewPadding.bottom + 16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _runsCard(context),
-            const SizedBox(height: 10),
-            _extrasRow(context),
-            const SizedBox(height: 10),
-            _actionRow(context),
-          ],
-        ),
+    // The Expanded(flex:...) sizing this panel against the display lives at
+    // the call site (score_board_screen.dart), so both shares can be tuned
+    // together.
+    return Container(
+      color: context.colorScheme.containerLow,
+      padding: EdgeInsets.fromLTRB(
+          16, 12, 16, MediaQuery.of(context).viewPadding.bottom + 12),
+      child: Column(
+        children: [
+          Expanded(flex: 3, child: _runsCard(context)),
+          const SizedBox(height: 8),
+          Expanded(flex: 1, child: _extrasRow(context)),
+          const SizedBox(height: 8),
+          Expanded(flex: 1, child: _actionRow(context)),
+        ],
       ),
     );
   }
@@ -51,23 +57,33 @@ class ScoreBoardButtons extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Row(children: [
-            _runKey(context, ScoreButton.zero),
-            _gap,
-            _runKey(context, ScoreButton.one),
-            _gap,
-            _runKey(context, ScoreButton.two),
-          ]),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _runKey(context, ScoreButton.zero),
+                _gap,
+                _runKey(context, ScoreButton.one),
+                _gap,
+                _runKey(context, ScoreButton.two),
+              ],
+            ),
+          ),
           _rowGap,
-          Row(children: [
-            _runKey(context, ScoreButton.three),
-            _gap,
-            _runKey(context, ScoreButton.four,
-                tintColor: context.colorScheme.secondary),
-            _gap,
-            _runKey(context, ScoreButton.six,
-                tintColor: context.colorScheme.primary),
-          ]),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _runKey(context, ScoreButton.three),
+                _gap,
+                _runKey(context, ScoreButton.four,
+                    tintColor: context.colorScheme.secondary),
+                _gap,
+                _runKey(context, ScoreButton.six,
+                    tintColor: context.colorScheme.primary),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -85,16 +101,18 @@ class ScoreBoardButtons extends StatelessWidget {
       child: _tappable(
         btn: btn,
         child: Container(
-          height: 52,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: context.colorScheme.containerLowOnSurface,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Text(
-            btn.getTitle(context),
-            style: AppTextStyle.header4
-                .copyWith(color: tintColor ?? context.colorScheme.textPrimary),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              btn.getTitle(context),
+              style: AppTextStyle.header4.copyWith(
+                  color: tintColor ?? context.colorScheme.textPrimary),
+            ),
           ),
         ),
       ),
@@ -110,6 +128,7 @@ class ScoreBoardButtons extends StatelessWidget {
       ScoreButton.fiveOrSeven,
     ];
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (final btn in extras) ...[
           Expanded(child: _extraPill(context, btn)),
@@ -123,18 +142,20 @@ class ScoreBoardButtons extends StatelessWidget {
     return _tappable(
       btn: btn,
       child: Container(
-        height: 34,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
           border: Border.all(color: context.colorScheme.outline),
         ),
-        child: Text(
-          btn.getTitle(context),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: AppTextStyle.caption
-              .copyWith(color: context.colorScheme.textSecondary),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            btn.getTitle(context),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.caption
+                .copyWith(color: context.colorScheme.textSecondary),
+          ),
         ),
       ),
     );
@@ -142,21 +163,24 @@ class ScoreBoardButtons extends StatelessWidget {
 
   Widget _actionRow(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: _tappable(
             btn: ScoreButton.undo,
             child: Container(
-              height: 44,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: context.colorScheme.positive.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Text(
-                ScoreButton.undo.getTitle(context),
-                style: AppTextStyle.button
-                    .copyWith(color: context.colorScheme.positive),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  ScoreButton.undo.getTitle(context),
+                  style: AppTextStyle.button
+                      .copyWith(color: context.colorScheme.positive),
+                ),
               ),
             ),
           ),
@@ -166,16 +190,18 @@ class ScoreBoardButtons extends StatelessWidget {
           child: _tappable(
             btn: ScoreButton.out,
             child: Container(
-              height: 44,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: context.colorScheme.alert,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Text(
-                ScoreButton.out.getTitle(context),
-                style: AppTextStyle.button
-                    .copyWith(color: context.colorScheme.onPrimary),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  ScoreButton.out.getTitle(context),
+                  style: AppTextStyle.button
+                      .copyWith(color: context.colorScheme.onPrimary),
+                ),
               ),
             ),
           ),
