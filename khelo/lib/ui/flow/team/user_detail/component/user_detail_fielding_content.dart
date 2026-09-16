@@ -6,41 +6,23 @@ import 'package:cricheros_style/text/app_text_style.dart';
 
 import 'stat_display.dart';
 
-class UserDetailFieldingContent extends StatefulWidget {
-  final int testMatchesCount;
-  final int otherMatchesCount;
-  final Fielding? testStats;
-  final Fielding? otherStats;
+class UserDetailFieldingContent extends StatelessWidget {
+  final int matchesCount;
+  final Fielding? fieldingStats;
 
   const UserDetailFieldingContent({
     super.key,
-    this.testMatchesCount = 0,
-    this.otherMatchesCount = 0,
-    this.testStats,
-    this.otherStats,
+    this.matchesCount = 0,
+    this.fieldingStats,
   });
 
   @override
-  State<UserDetailFieldingContent> createState() => _UserDetailFieldingContentState();
-}
-
-class _UserDetailFieldingContentState extends State<UserDetailFieldingContent> {
-  StatFormat _format = StatFormat.other;
-
-  @override
   Widget build(BuildContext context) {
-    final isTest = _format == StatFormat.test;
-    final stats = (isTest ? widget.testStats : widget.otherStats) ?? const Fielding();
-    final matches = isTest ? widget.testMatchesCount : widget.otherMatchesCount;
+    final stats = fieldingStats ?? const Fielding();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
       children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: FormatToggle(selected: _format, onChanged: (f) => setState(() => _format = f)),
-        ),
-        const SizedBox(height: 16),
         StatHeroGrid(tiles: [
           StatHeroTile(
             accent: true,
@@ -56,7 +38,7 @@ class _UserDetailFieldingContentState extends State<UserDetailFieldingContent> {
             label: context.l10n.user_detail_stumping_title,
           ),
           StatHeroTile(
-            value: matches.toString(),
+            value: matchesCount.toString(),
             label: context.l10n.user_detail_matches_title,
           ),
         ]),
@@ -67,7 +49,7 @@ class _UserDetailFieldingContentState extends State<UserDetailFieldingContent> {
         ),
         const SizedBox(height: 10),
         StatList(rows: [
-          (context.l10n.user_detail_matches_title, matches.toString()),
+          (context.l10n.user_detail_matches_title, matchesCount.toString()),
           (context.l10n.user_detail_catches_title, stats.catches.toString()),
           (context.l10n.user_detail_run_out_title, stats.runOut.toString()),
           (context.l10n.user_detail_stumping_title, stats.stumping.toString()),

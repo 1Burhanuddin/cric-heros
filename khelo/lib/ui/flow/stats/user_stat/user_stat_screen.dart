@@ -113,10 +113,7 @@ class _UserStatScreenState extends ConsumerState<UserStatScreen>
   }
 
   Widget _content(BuildContext context, UserStatViewState state) {
-    final testStats = state.userStats
-            ?.firstWhere((element) => element.type == UserStatType.test) ??
-        UserStat();
-    final otherStats = state.userStats
+    final stats = state.userStats
             ?.firstWhere((element) => element.type == UserStatType.other) ??
         UserStat();
 
@@ -126,22 +123,16 @@ class _UserStatScreenState extends ConsumerState<UserStatScreen>
         onPageChanged: notifier.onTabChange,
         children: [
           UserDetailBattingContent(
-            testMatchesCount: testStats.matches,
-            otherMatchesCount: otherStats.matches,
-            testStats: testStats.batting,
-            otherStats: otherStats.batting,
+            matchesCount: stats.matches,
+            battingStats: stats.batting,
           ),
           UserDetailBowlingContent(
-            testMatchesCount: testStats.matches,
-            otherMatchesCount: otherStats.matches,
-            testStats: testStats.bowling,
-            otherStats: otherStats.bowling,
+            matchesCount: stats.matches,
+            bowlingStats: stats.bowling,
           ),
           UserDetailFieldingContent(
-            testMatchesCount: testStats.matches,
-            otherMatchesCount: otherStats.matches,
-            testStats: testStats.fielding,
-            otherStats: otherStats.fielding,
+            matchesCount: stats.matches,
+            fieldingStats: stats.fielding,
           ),
         ],
       ),

@@ -6,41 +6,23 @@ import 'package:cricheros_style/text/app_text_style.dart';
 
 import 'stat_display.dart';
 
-class UserDetailBattingContent extends StatefulWidget {
-  final int testMatchesCount;
-  final int otherMatchesCount;
-  final Batting? testStats;
-  final Batting? otherStats;
+class UserDetailBattingContent extends StatelessWidget {
+  final int matchesCount;
+  final Batting? battingStats;
 
   const UserDetailBattingContent({
     super.key,
-    this.testMatchesCount = 0,
-    this.otherMatchesCount = 0,
-    this.testStats,
-    this.otherStats,
+    this.matchesCount = 0,
+    this.battingStats,
   });
 
   @override
-  State<UserDetailBattingContent> createState() => _UserDetailBattingContentState();
-}
-
-class _UserDetailBattingContentState extends State<UserDetailBattingContent> {
-  StatFormat _format = StatFormat.other;
-
-  @override
   Widget build(BuildContext context) {
-    final isTest = _format == StatFormat.test;
-    final stats = (isTest ? widget.testStats : widget.otherStats) ?? const Batting();
-    final matches = isTest ? widget.testMatchesCount : widget.otherMatchesCount;
+    final stats = battingStats ?? const Batting();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
       children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: FormatToggle(selected: _format, onChanged: (f) => setState(() => _format = f)),
-        ),
-        const SizedBox(height: 16),
         StatHeroGrid(tiles: [
           StatHeroTile(
             accent: true,
@@ -68,7 +50,7 @@ class _UserDetailBattingContentState extends State<UserDetailBattingContent> {
         ),
         const SizedBox(height: 10),
         StatList(rows: [
-          (context.l10n.user_detail_matches_title, matches.toString()),
+          (context.l10n.user_detail_matches_title, matchesCount.toString()),
           (context.l10n.user_detail_innings_title, stats.innings.toString()),
           (context.l10n.user_detail_runs_title, stats.run_scored.toString()),
           (context.l10n.user_detail_balls_title, stats.ball_faced.toString()),
