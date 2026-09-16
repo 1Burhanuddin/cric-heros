@@ -31,6 +31,7 @@ class TournamentModel with _$TournamentModel {
     @TimeStampJsonConverter() required DateTime end_date,
     @Default([]) List<String> team_ids,
     @Default([]) List<String> match_ids,
+    String? man_of_the_tournament_id,
     @JsonKey(includeFromJson: false, includeToJson: false)
     @Default([])
     List<TeamModel> teams,
