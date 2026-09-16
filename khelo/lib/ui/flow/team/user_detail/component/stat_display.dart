@@ -1,62 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cricheros/domain/extensions/context_extensions.dart';
-import 'package:cricheros_style/animations/on_tap_scale.dart';
 import 'package:cricheros_style/extensions/context_extensions.dart';
 import 'package:cricheros_style/text/app_text_style.dart';
-
-enum StatFormat { other, test }
-
-/// Segmented Other/Test switch - replaces the old side-by-side two-column
-/// table with picking one format at a time, so there's room to give the
-/// headline numbers real visual weight instead of cramming both into
-/// half-width columns.
-class FormatToggle extends StatelessWidget {
-  final StatFormat selected;
-  final ValueChanged<StatFormat> onChanged;
-
-  const FormatToggle({super.key, required this.selected, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: context.colorScheme.containerLow,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _segment(context, context.l10n.common_other_title, StatFormat.other),
-          _segment(context, context.l10n.user_detail_test_title, StatFormat.test),
-        ],
-      ),
-    );
-  }
-
-  Widget _segment(BuildContext context, String label, StatFormat format) {
-    final isSelected = selected == format;
-    return OnTapScale(
-      onTap: () => onChanged(format),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color: isSelected ? context.colorScheme.surface : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: isSelected
-              ? [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 3, offset: const Offset(0, 1))]
-              : null,
-        ),
-        child: Text(
-          label,
-          style: AppTextStyle.body2.copyWith(
-            color: isSelected ? context.colorScheme.textPrimary : context.colorScheme.textSecondary,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 /// One headline number, e.g. career runs or economy rate. [pairValue] shows
 /// a second, smaller number after a slash (100s/50s) for stats that read

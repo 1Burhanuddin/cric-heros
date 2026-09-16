@@ -6,41 +6,23 @@ import 'package:cricheros_style/text/app_text_style.dart';
 
 import 'stat_display.dart';
 
-class UserDetailBowlingContent extends StatefulWidget {
-  final int testMatchesCount;
-  final int otherMatchesCount;
-  final Bowling? testStats;
-  final Bowling? otherStats;
+class UserDetailBowlingContent extends StatelessWidget {
+  final int matchesCount;
+  final Bowling? bowlingStats;
 
   const UserDetailBowlingContent({
     super.key,
-    this.testMatchesCount = 0,
-    this.otherMatchesCount = 0,
-    this.testStats,
-    this.otherStats,
+    this.matchesCount = 0,
+    this.bowlingStats,
   });
 
   @override
-  State<UserDetailBowlingContent> createState() => _UserDetailBowlingContentState();
-}
-
-class _UserDetailBowlingContentState extends State<UserDetailBowlingContent> {
-  StatFormat _format = StatFormat.other;
-
-  @override
   Widget build(BuildContext context) {
-    final isTest = _format == StatFormat.test;
-    final stats = (isTest ? widget.testStats : widget.otherStats) ?? const Bowling();
-    final matches = isTest ? widget.testMatchesCount : widget.otherMatchesCount;
+    final stats = bowlingStats ?? const Bowling();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
       children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: FormatToggle(selected: _format, onChanged: (f) => setState(() => _format = f)),
-        ),
-        const SizedBox(height: 16),
         StatHeroGrid(tiles: [
           StatHeroTile(
             accent: true,
@@ -67,7 +49,7 @@ class _UserDetailBowlingContentState extends State<UserDetailBowlingContent> {
         ),
         const SizedBox(height: 10),
         StatList(rows: [
-          (context.l10n.user_detail_matches_title, matches.toString()),
+          (context.l10n.user_detail_matches_title, matchesCount.toString()),
           (context.l10n.user_detail_innings_title, stats.innings.toString()),
           (context.l10n.user_detail_balls_title, stats.balls.toString()),
           (context.l10n.user_detail_runs_title, stats.runs_conceded.toString()),

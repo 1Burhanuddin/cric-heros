@@ -167,10 +167,7 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
   }
 
   Widget _content(BuildContext context, UserDetailViewState state) {
-    final testStats = state.userStats
-            ?.firstWhere((element) => element.type == UserStatType.test) ??
-        UserStat();
-    final otherStats = state.userStats
+    final stats = state.userStats
             ?.firstWhere((element) => element.type == UserStatType.other) ??
         UserStat();
 
@@ -184,16 +181,12 @@ class _UserDetailScreenState extends ConsumerState<UserDetailScreen> {
             user: state.user,
           ),
           UserDetailBattingContent(
-            testMatchesCount: testStats.matches,
-            otherMatchesCount: otherStats.matches,
-            testStats: testStats.batting,
-            otherStats: otherStats.batting,
+            matchesCount: stats.matches,
+            battingStats: stats.batting,
           ),
           UserDetailBowlingContent(
-            testMatchesCount: testStats.matches,
-            otherMatchesCount: otherStats.matches,
-            testStats: testStats.bowling,
-            otherStats: otherStats.bowling,
+            matchesCount: stats.matches,
+            bowlingStats: stats.bowling,
           ),
         ],
       ),
