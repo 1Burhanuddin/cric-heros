@@ -106,11 +106,26 @@ class MatchDetailTabViewNotifier extends StateNotifier<MatchDetailTabState> {
     }
     if (state.loadingBallScoreMore) return;
     state = state.copyWith(loadingBallScoreMore: _ballsLoaded > 0);
+    // Cancel any previous subscription before starting a new one - this is
+    // called again every time a new innings streams in (they can arrive one
+    // row at a time rather than as a single batch), and without this an
+    // earlier subscription captured with a smaller/stale inningIds list
+    // keeps running alongside the new one and can overwrite state.overList
+    // with incomplete (single-team) data whenever it happens to fire last.
+    _ballScoreStreamSubscription?.cancel();
     final inningIds = state.allInnings.map((inning) => inning.id).toList();
     _ballScoreStreamSubscription = _ballScoreService
         .streamBallScoresByInningIds(
       inningIds: inningIds,
-      limit: _ballsLoaded + 12,
+      // The underlying query sorts every matching ball across the whole
+      // match by time and takes the most recent `limit` - since one team's
+      // entire innings happens before the other's, any limit on the first
+      // load only ever returns balls from whoever batted second, and the
+      // scorecard's other team never has enough data to show at all. Only
+      // limit on subsequent "load more" calls (commentary's infinite
+      // scroll, _ballsLoaded > 0 by then) - the first load needs every
+      // ball so both innings are complete right away.
+      limit: _ballsLoaded == 0 ? null : _ballsLoaded + 12,
     )
         .listen(
       (scores) {

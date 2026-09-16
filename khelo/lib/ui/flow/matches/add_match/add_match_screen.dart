@@ -90,6 +90,7 @@ class _AddMatchScreenState extends ConsumerState<AddMatchScreen> {
           context,
           saveBtnError: state.saveBtnError,
           onSchedule: () => notifier.addMatch(),
+          onError: notifier.onSaveAttemptedWithError,
         ),
         if (widget.matchId != null)
           _deleteMatchButton(context, onDelete: notifier.deleteMatch),
@@ -109,15 +110,21 @@ class _AddMatchScreenState extends ConsumerState<AddMatchScreen> {
     BuildContext context, {
     AddMatchErrorType? saveBtnError,
     required VoidCallback onSchedule,
+    required VoidCallback onError,
   }) {
     return actionButton(
       context,
-      onPressed: () => saveBtnError == null
-          ? onSchedule()
-          : showErrorSnackBar(
-              context: context,
-              error: saveBtnError.getString(context),
-            ),
+      onPressed: () {
+        if (saveBtnError == null) {
+          onSchedule();
+          return;
+        }
+        onError();
+        showErrorSnackBar(
+          context: context,
+          error: saveBtnError.getString(context),
+        );
+      },
       icon: SvgPicture.asset(
         Assets.images.icSave,
         width: 24,
@@ -190,6 +197,10 @@ class _AddMatchScreenState extends ConsumerState<AddMatchScreen> {
           controller: state.groundController,
           hintText: context.l10n.add_match_ground_title,
           onChange: notifier.onTextChange,
+          errorText: state.showFieldErrors &&
+                  state.groundController.text.trim().isEmpty
+              ? context.l10n.add_match_ground_required_error
+              : null,
         ),
         const SizedBox(height: 16),
         _inputField(
@@ -197,6 +208,10 @@ class _AddMatchScreenState extends ConsumerState<AddMatchScreen> {
           controller: state.cityController,
           hintText: context.l10n.common_city_title,
           onChange: notifier.onTextChange,
+          errorText:
+              state.showFieldErrors && state.cityController.text.trim().isEmpty
+                  ? context.l10n.add_match_city_required_error
+                  : null,
         ),
         _matchScheduleView(context, notifier, state),
         BallSelectionView(notifier: notifier, state: state),
@@ -273,6 +288,7 @@ class _AddMatchScreenState extends ConsumerState<AddMatchScreen> {
     required String hintText,
     bool allowNumberOnly = false,
     required VoidCallback onChange,
+    String? errorText,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -289,6 +305,7 @@ class _AddMatchScreenState extends ConsumerState<AddMatchScreen> {
           focusColor: context.colorScheme.outline,
           unFocusColor: context.colorScheme.outline,
         ),
+        errorText: errorText,
         keyboardType: allowNumberOnly ? TextInputType.number : null,
         inputFormatters: allowNumberOnly
             ? [

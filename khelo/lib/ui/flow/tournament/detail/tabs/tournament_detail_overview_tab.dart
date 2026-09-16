@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:cricheros_data/api/match/match_model.dart';
 import 'package:cricheros_data/api/team/team_model.dart';
 import 'package:cricheros_data/api/tournament/tournament_model.dart';
@@ -34,6 +35,7 @@ class TournamentDetailOverviewTab extends ConsumerWidget {
       children: [
         _featuredMatchesView(context, state.matches),
         _keyStatsView(context, state.keyStats),
+        _manOfTheTournamentView(context, state.tournament!, state.keyStats),
         _teamsSquadsView(context, state.tournament!.teams),
         _infoView(context, state.tournament!),
       ],
@@ -262,6 +264,79 @@ class TournamentDetailOverviewTab extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _manOfTheTournamentView(
+    BuildContext context,
+    TournamentModel tournament,
+    List<PlayerKeyStat> keyStats,
+  ) {
+    final motId = tournament.man_of_the_tournament_id;
+    if (motId == null) return const SizedBox();
+    final keyStat =
+        keyStats.firstWhereOrNull((element) => element.player.id == motId);
+    if (keyStat == null) return const SizedBox();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _header(
+            context,
+            title: context
+                .l10n.tournament_detail_overview_man_of_the_tournament_title,
+          ),
+          const SizedBox(height: 8),
+          MediaQuery.withNoTextScaling(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: context.colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  ImageAvatar(
+                    initial: keyStat.player.nameInitial,
+                    imageUrl: keyStat.player.profile_img_url,
+                    size: 48,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          keyStat.player.name ?? '',
+                          style: AppTextStyle.subtitle1.copyWith(
+                            color: context.colorScheme.textPrimary,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          keyStat.teamName,
+                          style: AppTextStyle.caption.copyWith(
+                            color: context.colorScheme.textDisabled,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '${keyStat.stats.batting.run_scored} ${context.l10n.key_stat_filter_runs}',
+                    style: AppTextStyle.subtitle2.copyWith(
+                      color: context.colorScheme.positive,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

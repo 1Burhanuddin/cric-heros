@@ -20,6 +20,14 @@ class MatchItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // A just-created match can briefly show up in this list before its
+    // match_teams rows have arrived - render nothing for that one frame
+    // instead of crashing on teams.first/elementAt(1); it corrects itself
+    // as soon as the team data comes in.
+    if (match.teams.length < 2) {
+      return const SizedBox();
+    }
+
     return OnTapScale(
       onTap: () => AppRoute.matchDetailTab(matchId: match.id).push(context),
       child: MediaQuery.withNoTextScaling(
