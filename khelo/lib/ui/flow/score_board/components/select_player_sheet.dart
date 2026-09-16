@@ -61,6 +61,23 @@ class _SelectPlayerSheetState extends ConsumerState<SelectPlayerSheet> {
   late List<MatchPlayer> bowlerList;
   late ScoreBoardViewNotifier notifier;
 
+  // When both batsman(s) and a bowler need to be picked (PlayerSelectionType
+  // .all / .batsManAndBowler), show one section at a time instead of both
+  // lists stacked in the same sheet.
+  int _step = 0;
+
+  bool get _needsTwoSteps =>
+      widget.playerSelectionType == PlayerSelectionType.all ||
+      widget.playerSelectionType == PlayerSelectionType.batsManAndBowler;
+
+  bool get _showBatsmanSection => _needsTwoSteps
+      ? _step == 0
+      : widget.playerSelectionType != PlayerSelectionType.bowler;
+
+  bool get _showBowlerSection => _needsTwoSteps
+      ? _step == 1
+      : widget.playerSelectionType != PlayerSelectionType.batsMan;
+
   @override
   void initState() {
     super.initState();
@@ -75,23 +92,21 @@ class _SelectPlayerSheetState extends ConsumerState<SelectPlayerSheet> {
   Widget build(BuildContext context) {
     final state = ref.watch(scoreBoardStateProvider);
 
-    final showCheckBox =
-        widget.playerSelectionType != PlayerSelectionType.bowler
-            ? batsManList.any((element) => element.performance.any(
-                  (element) =>
-                      element.inning_id == state.currentInning?.id &&
-                      element.status == PlayerStatus.injured,
-                ))
-            : false;
+    final showCheckBox = _showBatsmanSection
+        ? batsManList.any((element) => element.performance.any(
+              (element) =>
+                  element.inning_id == state.currentInning?.id &&
+                  element.status == PlayerStatus.injured,
+            ))
+        : false;
 
-    final injuredPlayerRemained =
-        widget.playerSelectionType != PlayerSelectionType.bowler
-            ? batsManList.every((e) => e.performance.any(
-                  (element) =>
-                      element.inning_id == state.currentInning?.id &&
-                      element.status == PlayerStatus.injured,
-                ))
-            : false;
+    final injuredPlayerRemained = _showBatsmanSection
+        ? batsManList.every((e) => e.performance.any(
+              (element) =>
+                  element.inning_id == state.currentInning?.id &&
+                  element.status == PlayerStatus.injured,
+            ))
+        : false;
     return BottomSheetWrapper(
         content: _selectPlayerContent(
           context,
@@ -120,8 +135,7 @@ class _SelectPlayerSheetState extends ConsumerState<SelectPlayerSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // batsman
-        if (widget.playerSelectionType != PlayerSelectionType.bowler &&
-            batsManList.isNotEmpty) ...[
+        if (_showBatsmanSection && batsManList.isNotEmpty) ...[
           _sectionTitle(
               context,
               (widget.playerSelectionType == PlayerSelectionType.all)
@@ -137,8 +151,7 @@ class _SelectPlayerSheetState extends ConsumerState<SelectPlayerSheet> {
         ],
 
         // bowler
-        if (widget.playerSelectionType != PlayerSelectionType.batsMan) ...[
-          const SizedBox(height: 24),
+        if (_showBowlerSection) ...[
           _sectionTitle(
               context,
               context.l10n
@@ -304,6 +317,8 @@ class _SelectPlayerSheetState extends ConsumerState<SelectPlayerSheet> {
       return isSecondInningRunning
           ? context.l10n.common_end_match_title
           : context.l10n.score_board_end_inning_title;
+    } else if (_needsTwoSteps && _step == 0) {
+      return context.l10n.common_next_title;
     } else {
       return context.l10n.common_select_title.toLowerCase();
     }
@@ -314,6 +329,12 @@ class _SelectPlayerSheetState extends ConsumerState<SelectPlayerSheet> {
         !isEnabled &&
         widget.playerSelectionType != PlayerSelectionType.bowler) {
       return true;
+    }
+
+    if (_needsTwoSteps && _step == 0) {
+      return widget.playerSelectionType == PlayerSelectionType.all
+          ? batsMan1 != null && batsMan2 != null
+          : batsMan1 != null;
     }
 
     switch (widget.playerSelectionType) {
@@ -338,6 +359,8 @@ class _SelectPlayerSheetState extends ConsumerState<SelectPlayerSheet> {
         selectedPlayer: null,
         contWithInjPlayer: isEnabled,
       ));
+    } else if (_needsTwoSteps && _step == 0) {
+      setState(() => _step = 1);
     } else {
       final List<({List<MatchPlayer> players, String teamId})> selectedPlayer =
           [];
